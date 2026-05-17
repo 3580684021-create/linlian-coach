@@ -819,7 +819,7 @@
                     console.error('AI识别失败：', error);
                     document.getElementById(type + 'Processing').style.display = 'none';
                     document.getElementById(type + 'Preview').style.display = 'block';
-                    alert('AI识别失败，请确保本地服务器已启动（localhost:8082）');
+                    alert('AI识别失败，请检查网络连接或稍后重试');
                 });
             };
 
@@ -918,7 +918,7 @@
                 document.getElementById('submitProcessing').style.display = 'none';
                 
                 // 显示错误
-                alert('提交失败，请确保本地服务器已启动（localhost:8082）');
+                alert('提交失败，请检查网络连接或稍后重试');
                 document.getElementById('testForm').style.display = 'block';
             });
         }
