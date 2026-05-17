@@ -521,11 +521,11 @@
                     <div style="margin-bottom: 30px;">
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🦶 足弓评估</div>
                         <div class="video-upload-area" id="footArchUpload" onclick="document.getElementById('footArchVideo').click()">
-                            <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传足弓视频（可多张）</div>
-                            <div class="upload-desc">支持同时上传多张照片或多段视频<br>建议3-5张不同角度的照片，准确率更高</div>
+                            <div class="upload-icon">📸</div>
+                            <div class="upload-title">上传足弓测试结果截图</div>
+                            <div class="upload-desc">拍摄测试设备屏幕上的结果照片<br>支持同时上传多张（1-5张）</div>
                         </div>
-                        <input type="file" id="footArchVideo" accept="video/*,image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('footArch', this)">
+                        <input type="file" id="footArchVideo" accept="image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('footArch', this)">
                         
                         <div class="video-preview" id="footArchPreview">
                             <div id="footArchPreviewGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;"></div>
@@ -573,11 +573,11 @@
                     <div style="margin-bottom: 30px;">
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🧘 体态评估</div>
                         <div class="video-upload-area" id="postureUpload" onclick="document.getElementById('postureVideo').click()">
-                            <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传体态照片（可多张）</div>
-                            <div class="upload-desc">支持同时上传多张照片或多段视频<br>建议正面+侧面各拍1-2张，准确率更高</div>
+                            <div class="upload-icon">📸</div>
+                            <div class="upload-title">上传体态测试结果截图</div>
+                            <div class="upload-desc">拍摄测试设备屏幕上的结果照片<br>支持同时上传多张（1-5张）</div>
                         </div>
-                        <input type="file" id="postureVideo" accept="video/*,image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('posture', this)">
+                        <input type="file" id="postureVideo" accept="image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('posture', this)">
                         
                         <div class="video-preview" id="posturePreview">
                             <div id="posturePreviewGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;"></div>
@@ -633,11 +633,11 @@
                     <div style="margin-bottom: 30px;">
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">💪 体成分分析</div>
                         <div class="video-upload-area" id="bodyCompUpload" onclick="document.getElementById('bodyCompVideo').click()">
-                            <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传体成分照片（可多张）</div>
-                            <div class="upload-desc">支持同时上传多张照片或多段视频<br>建议正面全身照片1-2张</div>
+                            <div class="upload-icon">📸</div>
+                            <div class="upload-title">上传体成分测试结果截图</div>
+                            <div class="upload-desc">拍摄测试设备屏幕上的结果照片<br>支持同时上传多张（1-5张）</div>
                         </div>
-                        <input type="file" id="bodyCompVideo" accept="video/*,image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('bodyComp', this)">
+                        <input type="file" id="bodyCompVideo" accept="image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('bodyComp', this)">
                         
                         <div class="video-preview" id="bodyCompPreview">
                             <div id="bodyCompPreviewGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;"></div>
@@ -979,27 +979,27 @@
         // 更新AI识别结果到UI
         function updateAIResult(type, data) {
             if (type === 'footArch') {
-                // 足弓评估结果
-                if (data['足弓类型']) document.getElementById('footArchType').textContent = data['足弓类型'];
-                if (data['左足弓']) document.getElementById('leftFootArch').textContent = data['左足弓'];
-                if (data['右足弓']) document.getElementById('rightFootArch').textContent = data['右足弓'];
-                if (data['分析说明']) document.getElementById('footArchAdvice').textContent = data['分析说明'];
+                // 足弓评估结果 - 详细数据
+                document.getElementById('footArchType').textContent = data['足弓类型'] || data['左足弓评分'] || '待确认';
+                document.getElementById('leftFootArch').textContent = data['左足弓评分'] || data['左足弓'] || '待确认';
+                document.getElementById('rightFootArch').textContent = data['右足弓评分'] || data['右足弓'] || '待确认';
+                document.getElementById('footArchAdvice').textContent = data['分析说明'] || '请查看详细数据';
 
             } else if (type === 'posture') {
-                // 体态评估结果
-                if (data['头颈对称性']) document.getElementById('headNeckSymmetry').textContent = data['头颈对称性'];
-                if (data['肩部对称']) document.getElementById('shoulderSymmetry').textContent = data['肩部对称'];
-                if (data['圆肩驼背']) document.getElementById('roundShoulder').textContent = data['圆肩驼背'];
-                if (data['重心偏移']) document.getElementById('centerOffset').textContent = data['重心偏移'];
-                if (data['骨盆对称']) document.getElementById('pelvisAlignment').textContent = data['骨盆对称'];
-                if (data['风险等级']) document.getElementById('riskLevel').textContent = data['风险等级'];
+                // 体态评估结果 - 详细数据
+                document.getElementById('headNeckSymmetry').textContent = data['头颈对称性'] || '待确认';
+                document.getElementById('shoulderSymmetry').textContent = data['肩部对称'] || '待确认';
+                document.getElementById('roundShoulder').textContent = data['圆肩程度'] || data['圆肩驼背'] || '无';
+                document.getElementById('centerOffset').textContent = data['重心偏移'] || '待确认';
+                document.getElementById('pelvisAlignment').textContent = data['骨盆倾斜'] || data['骨盆对称'] || '待确认';
+                document.getElementById('riskLevel').textContent = data['风险等级'] || data['综合评分'] || '待确认';
 
             } else if (type === 'bodyComp') {
-                // 体成分分析结果
-                if (data['BMI']) document.getElementById('bmi').textContent = data['BMI'];
-                if (data['体脂率']) document.getElementById('bodyFatRate').textContent = data['体脂率'];
-                if (data['肌肉量评估']) document.getElementById('muscleMass').textContent = data['肌肉量评估'];
-                if (data['体态评估']) document.getElementById('bodyCompAssessment').textContent = data['体态评估'];
+                // 体成分分析结果 - 详细数据
+                document.getElementById('bmi').textContent = data['BMI'] || '待确认';
+                document.getElementById('bodyFatRate').textContent = data['体脂率'] || '待确认';
+                document.getElementById('muscleMass').textContent = data['肌肉量'] || data['肌肉量评估'] || '待确认';
+                document.getElementById('bodyCompAssessment').textContent = data['体形判断'] || data['体态评估'] || data['分析说明'] || '待确认';
             }
         }
 
