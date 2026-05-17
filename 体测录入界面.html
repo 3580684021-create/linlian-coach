@@ -660,23 +660,8 @@
 
                         <div class="ai-result" id="bodyCompResult">
                             <div class="ai-result-title">✅ AI分析结果</div>
-                            <div class="ai-result-content">
-                                <div class="ai-result-item">
-                                    <span class="ai-result-label">BMI：</span>
-                                    <span class="ai-result-value" id="bmi">22.5</span>
-                                </div>
-                                <div class="ai-result-item">
-                                    <span class="ai-result-label">体脂率：</span>
-                                    <span class="ai-result-value" id="bodyFatRate">18%</span>
-                                </div>
-                                <div class="ai-result-item">
-                                    <span class="ai-result-label">肌肉量：</span>
-                                    <span class="ai-result-value" id="muscleMass">正常</span>
-                                </div>
-                                <div class="ai-result-item">
-                                    <span class="ai-result-label">评估：</span>
-                                    <span class="ai-result-value" id="bodyCompAssessment">体成分正常</span>
-                                </div>
+                            <div class="ai-result-content" id="bodyCompResultContent">
+                                <!-- 动态填充 -->
                             </div>
                         </div>
                     </div>
@@ -995,11 +980,56 @@
                 document.getElementById('riskLevel').textContent = data['风险等级'] || data['综合评分'] || '待确认';
 
             } else if (type === 'bodyComp') {
-                // 体成分分析结果 - 详细数据
-                document.getElementById('bmi').textContent = data['BMI'] || '待确认';
-                document.getElementById('bodyFatRate').textContent = data['体脂率'] || '待确认';
-                document.getElementById('muscleMass').textContent = data['肌肉量'] || data['肌肉量评估'] || '待确认';
-                document.getElementById('bodyCompAssessment').textContent = data['体形判断'] || data['体态评估'] || data['分析说明'] || '待确认';
+                // 体成分分析结果 - 动态显示所有字段
+                const container = document.getElementById('bodyCompResultContent');
+                container.innerHTML = '';
+                
+                // 按优先级排序的体成分字段
+                const bodyCompFields = [
+                    { key: '体重', label: '体重' },
+                    { key: 'BMI', label: 'BMI' },
+                    { key: '体脂率', label: '体脂率' },
+                    { key: '肌肉率', label: '肌肉率' },
+                    { key: '肌肉量', label: '肌肉量' },
+                    { key: '水分率', label: '水分率' },
+                    { key: '骨重', label: '骨重' },
+                    { key: '基础代谢', label: '基础代谢' },
+                    { key: '蛋白率', label: '蛋白率' },
+                    { key: '蛋白量', label: '蛋白量' },
+                    { key: '身体年龄', label: '身体年龄' },
+                    { key: '内脏脂肪指数', label: '内脏脂肪指数' },
+                    { key: '皮下脂肪率', label: '皮下脂肪率' },
+                    { key: '皮下脂肪量', label: '皮下脂肪量' },
+                    { key: '脂肪量', label: '脂肪量' },
+                    { key: '标准体重', label: '标准体重' },
+                    { key: '去脂体重', label: '去脂体重' },
+                    { key: '体重控制量', label: '体重控制量' },
+                    { key: '水分量', label: '水分量' },
+                    { key: '四肢肌肉指数', label: '四肢肌肉指数' },
+                    { key: '身体类型', label: '身体类型' },
+                    { key: '肥胖等级', label: '肥胖等级' },
+                    { key: '体形判断', label: '体形判断' },
+                    { key: '分析说明', label: '综合说明' }
+                ];
+                
+                let hasData = false;
+                bodyCompFields.forEach(field => {
+                    const value = data[field.key];
+                    if (value && value !== '待确认' && value !== '无') {
+                        hasData = true;
+                        const item = document.createElement('div');
+                        item.className = 'ai-result-item';
+                        item.innerHTML = `
+                            <span class="ai-result-label">${field.label}：</span>
+                            <span class="ai-result-value">${value}</span>
+                        `;
+                        container.appendChild(item);
+                    }
+                });
+                
+                if (!hasData) {
+                    container.innerHTML = '<div class="ai-result-item"><span class="ai-result-label">状态：</span><span class="ai-result-value">未能识别数据，请重试</span></div>';
+                }
             }
         }
 
