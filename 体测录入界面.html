@@ -736,6 +736,13 @@
             const file = input.files[0];
             if (!file) return;
 
+            // 检查视频大小（限制10MB以内）
+            if (file.size > 10 * 1024 * 1024) {
+                alert('视频文件过大，请选择10MB以内的视频，或使用手机拍摄短视频（5-10秒即可）');
+                input.value = '';
+                return;
+            }
+
             // 显示视频预览
             const preview = document.getElementById(type + 'Preview');
             const video = preview.querySelector('video');
@@ -764,8 +771,29 @@
             document.getElementById(type + 'Result').style.display = 'none';
         }
 
-        // 开始AI识别
-        function startRecognition(type) {
+        // 从视频中提取帧
+        function extractFrameFromVideo(videoElement) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // 设置截图尺寸（减小以加快处理）
+            const maxWidth = 1280;
+            const scale = Math.min(1, maxWidth / videoElement.videoWidth);
+            canvas.width = videoElement.videoWidth * scale;
+            canvas.height = videoElement.videoHeight * scale;
+
+            // 跳到中间位置截图
+            videoElement.currentTime = videoElement.duration / 2;
+            videoElement.pause();
+
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            // 返回base64图片
+            return canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+        }
+
+        // 开始AI识别（优化：提取帧后上传图片）
+        async function startRecognition(type) {
             // 获取视频文件
             const videoInput = document.getElementById(type + 'Video');
             if (!videoInput || !videoInput.files[0]) {
@@ -777,53 +805,64 @@
             document.getElementById(type + 'Processing').style.display = 'block';
             document.getElementById(type + 'Preview').style.display = 'none';
 
-            // 读取视频为base64
-            const file = videoInput.files[0];
-            const reader = new FileReader();
+            try {
+                const file = videoInput.files[0];
 
-            reader.onload = function(e) {
-                const base64Data = e.target.result.split(',')[1];  // 去掉 data:video/mp4;base64, 前缀
+                // 读取视频并提取帧
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.muted = true;
 
-                // 调用后端API
-                fetch(API_BASE_URL + '/api/analyze-video', {
+                await new Promise((resolve, reject) => {
+                    video.onloadedmetadata = resolve;
+                    video.onerror = reject;
+                });
+
+                // 等待视频准备好
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // 提取帧
+                const frameData = extractFrameFromVideo(video);
+
+                // 调用后端API（改用 /api/analyze-image）
+                const response = await fetch(API_BASE_URL + '/api/analyze-image', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        video_data: base64Data,
+                        image_data: frameData,
                         analysis_type: type === 'footArch' ? 'foot_arch' :
                                       type === 'posture' ? 'posture' :
                                       'body_comp'
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('AI识别结果：', data);
-
-                    // 隐藏处理动画
-                    document.getElementById(type + 'Processing').style.display = 'none';
-                    document.getElementById(type + 'Preview').style.display = 'block';
-
-                    if (data.success) {
-                        // 显示识别结果
-                        document.getElementById(type + 'Result').style.display = 'block';
-
-                        // 根据类型更新UI
-                        updateAIResult(type, data.data);
-                    } else {
-                        alert('AI识别失败：' + (data.error || '未知错误'));
-                    }
-                })
-                .catch(error => {
-                    console.error('AI识别失败：', error);
-                    document.getElementById(type + 'Processing').style.display = 'none';
-                    document.getElementById(type + 'Preview').style.display = 'block';
-                    alert('AI识别失败，请确保本地服务器已启动（localhost:8082）');
                 });
-            };
 
-            reader.readAsDataURL(file);
+                const data = await response.json();
+                console.log('AI识别结果：', data);
+
+                // 隐藏处理动画
+                document.getElementById(type + 'Processing').style.display = 'none';
+                document.getElementById(type + 'Preview').style.display = 'block';
+
+                if (data.success) {
+                    // 显示识别结果
+                    document.getElementById(type + 'Result').style.display = 'block';
+                    // 根据类型更新UI
+                    updateAIResult(type, data.data);
+                } else {
+                    alert('AI识别失败：' + (data.error || '未知错误'));
+                }
+
+                // 清理
+                URL.revokeObjectURL(video.src);
+
+            } catch (error) {
+                console.error('AI识别失败：', error);
+                document.getElementById(type + 'Processing').style.display = 'none';
+                document.getElementById(type + 'Preview').style.display = 'block';
+                alert('AI识别失败，请确保网络连接正常，或尝试使用更短的视频（5-10秒）');
+            }
         }
 
         // 更新AI识别结果到UI

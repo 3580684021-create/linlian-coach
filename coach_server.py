@@ -569,6 +569,49 @@ def analyze_video(video_path, analysis_type="posture"):
         return {"error": "AI分析失败"}
 
 
+def analyze_image(image_base64, analysis_type="posture"):
+    """
+    分析图片（比视频更快）
+    image_base64: base64编码的图片数据
+    """
+    print(f"\n{'='*60}")
+    print(f"🖼️ 开始图片分析 (类型: {analysis_type})")
+    print(f"{'='*60}\n")
+    
+    try:
+        # 解码base64图片到临时文件
+        import tempfile
+        temp_img = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg', dir=TEMP_FRAME_DIR)
+        temp_img_path = temp_img.name
+        temp_img.close()
+        
+        with open(temp_img_path, 'wb') as f:
+            f.write(base64.b64decode(image_base64))
+        
+        print(f"📷 接收到图片: {temp_img_path}")
+        
+        # 分析图片
+        result = analyze_frame_with_silicon_vl(temp_img_path, analysis_type)
+        
+        # 清理临时文件
+        try:
+            os.unlink(temp_img_path)
+        except:
+            pass
+        
+        if result:
+            print(f"✅ 图片分析完成: {result}")
+            return result
+        else:
+            return {"error": "AI分析失败"}
+            
+    except Exception as e:
+        print(f"❌ 图片分析失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"error": str(e)}
+
+
 # ========== HTTP 请求处理 ==========
 
 class Handler(BaseHTTPRequestHandler):
@@ -683,6 +726,33 @@ class Handler(BaseHTTPRequestHandler):
                 print(f"❌ 预约提交失败: {e}")
                 traceback.print_exc()
                 self.send_json({"success": False, "message": str(e)})
+
+        elif path == "/api/analyze-image":
+            # 图片AI分析端点（比视频更快）
+            try:
+                length = int(self.headers["Content-Length"])
+                data = json.loads(self.rfile.read(length))
+                
+                image_data = data.get('image_data')  # base64编码的图片
+                analysis_type = data.get('analysis_type', 'posture')
+                
+                if not image_data:
+                    self.send_json({"success": False, "error": "缺少图片数据"})
+                    return
+                
+                # 分析图片
+                result = analyze_image(image_data, analysis_type)
+                
+                if 'error' in result:
+                    self.send_json({"success": False, "error": result['error']})
+                else:
+                    self.send_json({"success": True, "data": result})
+                    
+            except Exception as e:
+                import traceback
+                print(f"❌ 图片分析失败: {e}")
+                traceback.print_exc()
+                self.send_json({"success": False, "error": str(e)})
         
         else:
             self.send_error(404)
