@@ -434,6 +434,20 @@ def analyze_video(video_path, analysis_type="posture"):
 # ========== HTTP 请求处理 ==========
 
 class Handler(BaseHTTPRequestHandler):
+    # CORS 跨域配置
+    def add_cors_headers(self):
+        """添加 CORS 响应头"""
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Access-Control-Max-Age", "3600")
+    
+    def do_OPTIONS(self):
+        """处理 CORS 预检请求"""
+        self.send_response(200)
+        self.add_cors_headers()
+        self.end_headers()
+    
     def do_GET(self):
         path = urlparse(self.path).path
         
@@ -521,8 +535,8 @@ class Handler(BaseHTTPRequestHandler):
         content = json.dumps(data, ensure_ascii=False).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.add_cors_headers()
         self.send_header("Content-Length", len(content))
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(content)
     
