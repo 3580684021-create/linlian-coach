@@ -6,7 +6,7 @@
 
 // Railway.app 部署后，替换为你的 Railway URL
 // 格式: https://xxx.up.railway.app
-const API_BASE_URL = 'https://your-app-name.up.railway.app';
+const API_BASE_URL = 'https://linlian-coach-production.up.railway.app';
 
 // 导出供其他脚本使用
 window.API_BASE_URL = API_BASE_URL;
