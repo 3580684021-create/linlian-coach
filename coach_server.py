@@ -359,61 +359,98 @@ def submit_test_data(record_id, test_data):
 
 # ========== 视频AI识别（硅基流动 API）==========
 
-def extract_video_frames(video_path, max_frames=5):
-    """提取视频关键帧，保存到临时目录"""
+def extract_video_frames(video_path, max_frames=3):
+    """提取视频关键帧，保存到临时目录
+    使用 FFmpeg 或 cv2 进行帧提取
+    """
     print(f"🎬 提取视频帧: {video_path}")
+    frame_paths = []
+    
     try:
-        import imageio.v3 as iio
-
-        # 获取元数据
-        meta = iio.immeta(video_path)
-        fps = meta.get('fps', 30)
-        num_frames = meta.get('num_frames', 0)
-
-        # 如果 num_frames 未知，用无参数 iterate 探测（imageio v3 不直接支持）
-        if not num_frames or num_frames == 0:
-            print("   无法从元数据获取帧数，按文件大小估算...")
-            # 1080p 视频 ~100KB/帧（h264编码）
-            file_size_kb = os.path.getsize(video_path) / 1024
-            # 粗略估算：文件大小 / 每帧大小 * 压缩比
-            estimated_frames = int(file_size_kb / 50)  # 50KB/帧 粗略估算
-            estimated_frames = min(estimated_frames, 5000)
-            num_frames = estimated_frames
-            print(f"   估算帧数: ~{num_frames}")
-
-        total = int(num_frames)
-        print(f"   视频 FPS: {fps}, 总帧数: {total}")
-
-        # 计算要提取的帧索引
-        if total <= max_frames:
-            indices = list(range(total))
-        else:
-            indices = [int(total * (i+1) / (max_frames + 1)) for i in range(max_frames)]
-
-        print(f"   将提取 {len(indices)} 帧，索引: {indices}")
-
-        frame_paths = []
-        for i, idx in enumerate(indices):
-            output_path = os.path.join(TEMP_FRAME_DIR, f"frame_{i:02d}.jpg")
-
-            try:
-                frame = iio.imread(video_path, index=idx, plugin='pyav')
-                iio.imwrite(output_path, frame, plugin='pillow', quality=90)
-                if os.path.exists(output_path):
-                    ts = idx / fps
+        # 方法1：尝试使用 OpenCV (cv2)
+        try:
+            import cv2
+            cap = cv2.VideoCapture(video_path)
+            if not cap.isOpened():
+                raise Exception("无法打开视频")
+            
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            duration = total_frames / fps if fps > 0 else 0
+            
+            print(f"   OpenCV检测: FPS={fps:.1f}, 总帧数={total_frames}, 时长={duration:.1f}秒")
+            
+            # 计算要提取的帧索引
+            if total_frames <= max_frames:
+                indices = list(range(total_frames))
+            else:
+                indices = [int(total_frames * (i+1) / (max_frames + 1)) for i in range(max_frames)]
+            
+            for i, idx in enumerate(indices):
+                cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
+                ret, frame = cap.read()
+                if ret:
+                    output_path = os.path.join(TEMP_FRAME_DIR, f"frame_{i:02d}.jpg")
+                    cv2.imwrite(output_path, frame, [cv2.IMWRITE_JPEG_QUALITY, 90])
+                    ts = idx / fps if fps > 0 else 0
                     print(f"   ✅ 帧 {i+1}/{len(indices)}: 索引={idx} 时间={ts:.1f}s -> {output_path}")
                     frame_paths.append(output_path)
-            except Exception as e:
-                print(f"   ⚠️  提取帧 {idx} 失败: {e}")
-
-        print(f"✅ 共提取 {len(frame_paths)} 帧")
-        return frame_paths
-
+            
+            cap.release()
+            print(f"✅ OpenCV提取成功，共 {len(frame_paths)} 帧")
+            return frame_paths
+            
+        except ImportError:
+            print("   OpenCV不可用，尝试FFmpeg...")
+            
+        # 方法2：尝试使用 FFmpeg
+        try:
+            import subprocess
+            
+            # 检查视频信息
+            probe_cmd = ['ffprobe', '-v', 'error', '-show_entries', 
+                        'format=duration,size:stream=r_frame_rate,nb_frames', 
+                        '-of', 'json', video_path]
+            probe_result = subprocess.run(probe_cmd, capture_output=True, text=True, timeout=30)
+            
+            if probe_result.returncode == 0:
+                import json
+                info = json.loads(probe_result.stdout)
+                duration = float(info.get('format', {}).get('duration', 10))
+                print(f"   FFprobe检测: 时长={duration:.1f}秒")
+            else:
+                duration = 10
+                print(f"   FFprobe检测失败，使用默认时长 {duration} 秒")
+            
+            # 提取帧
+            indices = [int(duration * (i+1) / (max_frames + 1)) for i in range(max_frames)]
+            
+            for i, ts in enumerate(indices):
+                output_path = os.path.join(TEMP_FRAME_DIR, f"frame_{i:02d}.jpg")
+                cmd = ['ffmpeg', '-y', '-ss', str(ts), '-i', video_path, 
+                       '-vframes', '1', '-q:v', '2', output_path]
+                
+                result = subprocess.run(cmd, capture_output=True, timeout=30)
+                if result.returncode == 0 and os.path.exists(output_path):
+                    print(f"   ✅ 帧 {i+1}/{len(indices)}: 时间={ts:.1f}s -> {output_path}")
+                    frame_paths.append(output_path)
+                else:
+                    print(f"   ⚠️  FFmpeg提取帧 {i} 失败")
+            
+            print(f"✅ FFmpeg提取成功，共 {len(frame_paths)} 帧")
+            return frame_paths
+            
+        except ImportError:
+            print("   FFmpeg不可用")
+        except FileNotFoundError:
+            print("   FFmpeg未安装")
+            
     except Exception as e:
         print(f"   ❌ 提取帧失败: {e}")
         import traceback
         traceback.print_exc()
-        return []
+    
+    return frame_paths
 
 
 def analyze_frame_with_silicon_vl(frame_path, analysis_type="posture"):
@@ -546,27 +583,41 @@ def analyze_video(video_path, analysis_type="posture"):
     """
     print(f"\n{'='*60}")
     print(f"🎥 开始视频分析 (类型: {analysis_type})")
+    print(f"   视频文件: {video_path}")
     print(f"{'='*60}\n")
     
-    # 提取帧
-    frames = extract_video_frames(video_path, max_frames=3)
+    try:
+        # 提取帧
+        frames = extract_video_frames(video_path, max_frames=3)
+        
+        if not frames:
+            return {"error": "无法提取视频帧，请确保视频格式正确（支持MP4、AVI、MOV等格式）"}
+        
+        # 分析每一帧
+        results = []
+        for frame in frames:
+            try:
+                result = analyze_frame_with_silicon_vl(frame, analysis_type)
+                if result:
+                    results.append(result)
+            except Exception as e:
+                print(f"   ⚠️ 分析帧失败: {e}")
+        
+        # 汇总结果
+        if results:
+            print(f"\n✅ 分析完成，共成功分析 {len(results)}/{len(frames)} 帧")
+            return results[0]  # 返回第一帧的结果
+        else:
+            return {"error": "AI分析失败，所有帧分析均未成功"}
+            
+    except Exception as e:
+        print(f"❌ 视频分析异常: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"error": f"视频分析出错: {str(e)[:100]}"}
     
-    if not frames:
-        return {"error": "无法提取视频帧"}
-    
-    # 分析每一帧
-    results = []
-    for frame in frames:
-        result = analyze_frame_with_silicon_vl(frame, analysis_type)
-        if result:
-            results.append(result)
-    
-    # 汇总结果（使用第一帧的结果，或投票机制）
-    if results:
-        print(f"\n✅ 分析完成，共分析 {len(results)} 帧")
-        return results[0]  # 返回第一帧的结果
-    else:
-        return {"error": "AI分析失败"}
+    # 移除旧代码（已整合到上面的try-except中）
+    # 保留函数结构以避免引用错误
 
 
 def analyze_image(image_base64, analysis_type="posture"):
@@ -678,36 +729,53 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_json({"success": False, "error": "缺少视频数据"})
                     return
                 
+                print(f"📹 收到视频分析请求: 类型={analysis_type}, 数据长度={len(video_data)}")
+                
                 # 解码base64视频到临时文件
                 import tempfile
                 temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4', dir=TEMP_FRAME_DIR)
                 temp_video_path = temp_video.name
                 temp_video.close()
                 
-                with open(temp_video_path, 'wb') as f:
-                    f.write(base64.b64decode(video_data))
-                
-                print(f"📹 接收到视频: {temp_video_path}")
-                
-                # 分析视频
-                result = analyze_video(temp_video_path, analysis_type)
-                
-                # 清理临时文件
                 try:
-                    os.unlink(temp_video_path)
-                except:
-                    pass
-                
-                if 'error' in result:
-                    self.send_json({"success": False, "error": result['error']})
-                else:
-                    self.send_json({"success": True, "data": result})
+                    with open(temp_video_path, 'wb') as f:
+                        f.write(base64.b64decode(video_data))
                     
+                    video_size_mb = os.path.getsize(temp_video_path) / 1024 / 1024
+                    print(f"📹 解码视频成功: {temp_video_path}, 大小: {video_size_mb:.2f} MB")
+                    
+                    # 检查视频文件是否有效
+                    if video_size_mb < 0.01:
+                        raise Exception("视频文件过小，可能是无效数据")
+                    
+                    # 分析视频
+                    print("🔄 开始AI视频分析...")
+                    result = analyze_video(temp_video_path, analysis_type)
+                    
+                    if 'error' in result:
+                        self.send_json({"success": False, "error": result['error']})
+                    else:
+                        self.send_json({"success": True, "data": result})
+                        
+                finally:
+                    # 清理临时文件
+                    try:
+                        if os.path.exists(temp_video_path):
+                            os.unlink(temp_video_path)
+                    except:
+                        pass
+                    
+            except json.JSONDecodeError as e:
+                print(f"❌ JSON解析失败: {e}")
+                self.send_json({"success": False, "error": "请求数据格式错误"})
+            except base64.binascii.Error as e:
+                print(f"❌ Base64解码失败: {e}")
+                self.send_json({"success": False, "error": "视频数据格式错误"})
             except Exception as e:
                 import traceback
                 print(f"❌ 视频分析失败: {e}")
                 traceback.print_exc()
-                self.send_json({"success": False, "error": str(e)})
+                self.send_json({"success": False, "error": f"视频分析出错: {str(e)[:100]}"})
         
         elif path == "/api/submit-booking":
             # 预约提交端点

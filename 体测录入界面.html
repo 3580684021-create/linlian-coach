@@ -792,7 +792,7 @@
             return canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
         }
 
-        // 开始AI识别（优化：提取帧后上传图片）
+        // 开始AI识别（视频方式 - 上传完整视频到后端处理）
         async function startRecognition(type) {
             // 获取视频文件
             const videoInput = document.getElementById(type + 'Video');
@@ -807,39 +807,33 @@
 
             try {
                 const file = videoInput.files[0];
+                console.log(`📹 开始上传视频: ${file.name}, 大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
 
-                // 读取视频并提取帧
-                const video = document.createElement('video');
-                video.src = URL.createObjectURL(file);
-                video.muted = true;
-
-                await new Promise((resolve, reject) => {
-                    video.onloadedmetadata = resolve;
-                    video.onerror = reject;
+                // 读取文件为base64
+                const reader = new FileReader();
+                const videoData = await new Promise((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
                 });
 
-                // 等待视频准备好
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                // 提取帧
-                const frameData = extractFrameFromVideo(video);
-
-                // 调用后端API（改用 /api/analyze-image）
-                const response = await fetch(API_BASE_URL + '/api/analyze-image', {
+                // 调用后端视频分析API
+                console.log('🚀 发送视频到后端进行AI分析...');
+                const response = await fetch(API_BASE_URL + '/api/analyze-video', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        image_data: frameData,
+                        video_data: videoData,
                         analysis_type: type === 'footArch' ? 'foot_arch' :
                                       type === 'posture' ? 'posture' :
                                       'body_comp'
                     })
-                });
+                }, 300000); // 5分钟超时
 
                 const data = await response.json();
-                console.log('AI识别结果：', data);
+                console.log('✅ AI识别结果：', data);
 
                 // 隐藏处理动画
                 document.getElementById(type + 'Processing').style.display = 'none';
@@ -854,14 +848,11 @@
                     alert('AI识别失败：' + (data.error || '未知错误'));
                 }
 
-                // 清理
-                URL.revokeObjectURL(video.src);
-
             } catch (error) {
-                console.error('AI识别失败：', error);
+                console.error('❌ AI识别失败：', error);
                 document.getElementById(type + 'Processing').style.display = 'none';
                 document.getElementById(type + 'Preview').style.display = 'block';
-                alert('AI识别失败，请确保网络连接正常，或尝试使用更短的视频（5-10秒）');
+                alert('AI识别失败，请确保网络连接正常，或尝试使用更短的视频（5-10秒，文件小于10MB）');
             }
         }
 
