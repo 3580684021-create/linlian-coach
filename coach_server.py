@@ -513,7 +513,7 @@ def analyze_frame_with_silicon_vl(frame_path, analysis_type="posture"):
     }
     
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response = requests.post(url, headers=headers, json=payload, timeout=120)  # 增加超时到120秒
         result = response.json()
         
         if response.status_code == 200 and "choices" in result:
@@ -588,7 +588,7 @@ def analyze_image(image_base64, analysis_type="posture"):
         with open(temp_img_path, 'wb') as f:
             f.write(base64.b64decode(image_base64))
         
-        print(f"📷 接收到图片: {temp_img_path}")
+        print(f"📷 接收到图片: {temp_img_path}, 大小: {os.path.getsize(temp_img_path)} bytes")
         
         # 分析图片
         result = analyze_frame_with_silicon_vl(temp_img_path, analysis_type)
@@ -603,13 +603,13 @@ def analyze_image(image_base64, analysis_type="posture"):
             print(f"✅ 图片分析完成: {result}")
             return result
         else:
-            return {"error": "AI分析失败"}
+            return {"error": "AI分析失败，请稍后重试"}
             
     except Exception as e:
         print(f"❌ 图片分析失败: {e}")
         import traceback
         traceback.print_exc()
-        return {"error": str(e)}
+        return {"error": f"图片分析出错: {str(e)[:100]}"}
 
 
 # ========== HTTP 请求处理 ==========
