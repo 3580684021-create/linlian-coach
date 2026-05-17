@@ -1,0 +1,570 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+邻练体育 - 教练端本地服务器
+功能：
+1. 提供教练端界面访问
+2. 从飞书读取学生列表
+3. 提交体测数据到飞书
+4. 触发PDF报告生成
+5. 视频AI识别（硅基流动API）
+"""
+
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
+import socket
+import urllib.request
+import urllib.parse
+from urllib.parse import urlparse
+from datetime import datetime
+import base64
+import requests
+import os
+import subprocess
+import tempfile
+
+# 配置信息（从环境变量读取，提供默认值用于本地开发）
+import os
+
+FEISHU_CONFIG = {
+    'app_id': os.environ.get('FEISHU_APP_ID', 'cli_aa8943c2e9381cde'),
+    'app_secret': os.environ.get('FEISHU_APP_SECRET', 'M6Nb3vLmsUPRkFD4xEoO8d18JZTa1N3k'),
+    'base_token': os.environ.get('FEISHU_BASE_TOKEN', 'UTJobXJT1a85lDspZfecgPDXnCc'),
+    'table_id': os.environ.get('FEISHU_TABLE_ID', 'tblPyAhmraamWM1u'),
+    'test_table_id': os.environ.get('FEISHU_TEST_TABLE_ID', 'tblyY6kyPk3b62iL'),
+}
+
+HTML_DIR = os.environ.get('HTML_DIR', '/Users/mac/Desktop/workbuddy/Claw/邻练体测知识库/05_报告模板')
+
+# 硅基流动 API 配置
+SILICON_FLOW_CONFIG = {
+    'api_key': os.environ.get('SILICON_FLOW_API_KEY', 'sk-ezmxsksbppopslxjglytlyhrkjxwopqrexgwqwykifiasirj'),
+    'base_url': os.environ.get('SILICON_FLOW_BASE_URL', 'https://api.siliconflow.cn/v1'),
+    'vision_model': os.environ.get('SILICON_FLOW_MODEL', 'Qwen/Qwen3-VL-8B-Instruct')
+}
+
+# 临时视频帧存储目录
+TEMP_FRAME_DIR = "/tmp/linlian_video_frames"
+os.makedirs(TEMP_FRAME_DIR, exist_ok=True)
+
+# 获取飞书 access token
+def get_feishu_token():
+    """获取飞书访问令牌"""
+    url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
+    data = {
+        "app_id": FEISHU_CONFIG['app_id'],
+        "app_secret": FEISHU_CONFIG['app_secret']
+    }
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(data).encode('utf-8'),
+        headers={'Content-Type': 'application/json'}
+    )
+    try:
+        response = urllib.request.urlopen(req)
+        result = json.loads(response.read().decode('utf-8'))
+        token = result.get('tenant_access_token')
+        if token:
+            print(f"✅ 获取飞书 token 成功")
+            return token
+        else:
+            print(f"❌ 获取 token 失败: {result}")
+            return None
+    except Exception as e:
+        print(f"❌ 获取 token 失败: {e}")
+        return None
+
+# 读取学生列表
+def get_students():
+    """从飞书读取预约学生列表"""
+    token = get_feishu_token()
+    if not token:
+        print("⚠️  无法获取 token，返回模拟数据")
+        return get_mock_students()
+    
+    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['base_token']}/tables/{FEISHU_CONFIG['table_id']}/records"
+    req = urllib.request.Request(
+        url,
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+    )
+    
+    try:
+        response = urllib.request.urlopen(req)
+        result = json.loads(response.read().decode('utf-8'))
+        
+        if result.get('code') != 0:
+            print(f"❌ 读取学生列表失败: {result.get('msg')}")
+            return get_mock_students()
+        
+        records = result.get('data', {}).get('items', [])
+        
+        students = []
+        for record in records:
+            fields = record.get('fields', {})
+            students.append({
+                'record_id': record.get('record_id'),
+                'name': fields.get('孩子姓名', fields.get('多行文本', '未知')),
+                'gender': fields.get('性别', '男'),
+                'age': fields.get('年龄', 7),
+                'phone': fields.get('联系电话', ''),
+                'location': fields.get('预约地点', '人民街道党群'),
+                'booking_no': fields.get('预约编号', ''),
+                'status': fields.get('状态', '已预约')
+            })
+        
+        print(f"✅ 从飞书读取到 {len(students)} 条学生数据")
+        return students
+    except Exception as e:
+        print(f"❌ 读取学生列表失败: {e}")
+        return get_mock_students()
+
+def get_mock_students():
+    """返回模拟学生数据"""
+    return [
+        {"record_id": "rec001", "name": "张小明", "gender": "男", "age": 8, "phone": "138****1234", "location": "人民街道党群", "booking_no": "20260517-001", "status": "已预约"},
+        {"record_id": "rec002", "name": "李小红", "gender": "女", "age": 7, "phone": "139****5678", "location": "人民街道党群", "booking_no": "20260517-002", "status": "已到店"},
+        {"record_id": "rec003", "name": "王小强", "gender": "男", "age": 9, "phone": "137****9012", "location": "人民街道党群", "booking_no": "20260517-003", "status": "已完成"}
+    ]
+
+# 提交体测数据
+def submit_test_data(record_id, test_data):
+    """提交体测数据到飞书"""
+    token = get_feishu_token()
+    if not token:
+        print("⚠️  无法获取 token，模拟提交")
+        print("📊 收到体测数据：")
+        print(json.dumps(test_data, ensure_ascii=False, indent=2))
+        return True
+    
+    # 构建飞书记录数据
+    fields = {}
+    
+    # 学员姓名
+    if 'student_name' in test_data:
+        fields['学员姓名'] = test_data['student_name']
+    
+    # 测试日期 (毫秒时间戳)
+    fields['测试日期'] = int(datetime.now().timestamp() * 1000)
+    
+    # 体能测试数据
+    if 'vital_capacity' in test_data and test_data['vital_capacity']:
+        try:
+            fields['肺活量(ml)'] = float(test_data['vital_capacity'])
+        except:
+            pass
+    
+    if 'standing_long_jump' in test_data and test_data['standing_long_jump']:
+        try:
+            fields['立定跳远(cm)'] = float(test_data['standing_long_jump'])
+        except:
+            pass
+    
+    if 'sit_and_reach' in test_data and test_data['sit_and_reach']:
+        try:
+            fields['体前屈(cm)'] = float(test_data['sit_and_reach'])
+        except:
+            pass
+    
+    # 测试教练
+    if 'coach_name' in test_data:
+        fields['测试教练'] = test_data['coach_name']
+    
+    # 备注说明 (包含跪姿俯卧撑、平板支撑等)
+    notes = []
+    if 'push_up' in test_data and test_data['push_up']:
+        notes.append(f"跪姿俯卧撑: {test_data['push_up']} 次")
+    if 'plank' in test_data and test_data['plank']:
+        notes.append(f"极限平板支撑: {test_data['plank']} 秒")
+    if 'notes' in test_data and test_data['notes']:
+        notes.append(test_data['notes'])
+    
+    if notes:
+        fields['备注说明'] = '\n'.join(notes)
+    
+    # 提交到飞书
+    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['base_token']}/tables/{FEISHU_CONFIG['test_table_id']}/records"
+    
+    payload = {
+        "fields": fields
+    }
+    
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode('utf-8'),
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+    )
+    
+    try:
+        response = urllib.request.urlopen(req)
+        result = json.loads(response.read().decode('utf-8'))
+        
+        if result.get('code') == 0:
+            new_record_id = result['data']['record']['record_id']
+            print(f"✅ 数据已成功提交到飞书")
+            print(f"   新记录ID: {new_record_id}")
+            print(f"   提交数据: {json.dumps(fields, ensure_ascii=False)}")
+            return True
+        else:
+            print(f"❌ 提交失败: {result.get('msg')}")
+            return False
+    except Exception as e:
+        print(f"❌ 提交失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+# ========== 视频AI识别（硅基流动 API）==========
+
+def extract_video_frames(video_path, max_frames=5):
+    """提取视频关键帧，保存到临时目录"""
+    print(f"🎬 提取视频帧: {video_path}")
+    try:
+        import imageio.v3 as iio
+
+        # 获取元数据
+        meta = iio.immeta(video_path)
+        fps = meta.get('fps', 30)
+        num_frames = meta.get('num_frames', 0)
+
+        # 如果 num_frames 未知，用无参数 iterate 探测（imageio v3 不直接支持）
+        if not num_frames or num_frames == 0:
+            print("   无法从元数据获取帧数，按文件大小估算...")
+            # 1080p 视频 ~100KB/帧（h264编码）
+            file_size_kb = os.path.getsize(video_path) / 1024
+            # 粗略估算：文件大小 / 每帧大小 * 压缩比
+            estimated_frames = int(file_size_kb / 50)  # 50KB/帧 粗略估算
+            estimated_frames = min(estimated_frames, 5000)
+            num_frames = estimated_frames
+            print(f"   估算帧数: ~{num_frames}")
+
+        total = int(num_frames)
+        print(f"   视频 FPS: {fps}, 总帧数: {total}")
+
+        # 计算要提取的帧索引
+        if total <= max_frames:
+            indices = list(range(total))
+        else:
+            indices = [int(total * (i+1) / (max_frames + 1)) for i in range(max_frames)]
+
+        print(f"   将提取 {len(indices)} 帧，索引: {indices}")
+
+        frame_paths = []
+        for i, idx in enumerate(indices):
+            output_path = os.path.join(TEMP_FRAME_DIR, f"frame_{i:02d}.jpg")
+
+            try:
+                frame = iio.imread(video_path, index=idx, plugin='pyav')
+                iio.imwrite(output_path, frame, plugin='pillow', quality=90)
+                if os.path.exists(output_path):
+                    ts = idx / fps
+                    print(f"   ✅ 帧 {i+1}/{len(indices)}: 索引={idx} 时间={ts:.1f}s -> {output_path}")
+                    frame_paths.append(output_path)
+            except Exception as e:
+                print(f"   ⚠️  提取帧 {idx} 失败: {e}")
+
+        print(f"✅ 共提取 {len(frame_paths)} 帧")
+        return frame_paths
+
+    except Exception as e:
+        print(f"   ❌ 提取帧失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
+
+
+def analyze_frame_with_silicon_vl(frame_path, analysis_type="posture"):
+    """
+    使用硅基流动 Qwen3-VL 分析图像
+    analysis_type: "foot_arch" | "posture" | "body_comp"
+    """
+    print(f"🧠 使用AI分析图像: {frame_path}")
+    
+    # 读取图像并转base64
+    with open(frame_path, "rb") as f:
+        image_data = base64.b64encode(f.read()).decode('utf-8')
+    
+    # 根据分析类型构建提示词
+    if analysis_type == "foot_arch":
+        prompt = """这张图片是手机拍摄的足弓测试设备屏幕，请识别屏幕上所有可见的文字和数据。
+
+请严格按照以下JSON格式返回（每个字段都必须填写，不能留空）：
+{
+  "足弓类型": "根据屏幕内容填写，如：正常足弓、扁平足、高足弓",
+  "左足弓": "根据屏幕内容填写左足数据，如：正常、扁平",
+  "右足弓": "根据屏幕内容填写右足数据，如：正常、扁平",
+  "分析说明": "把屏幕上所有关键数值和文字汇总成一句话"
+}
+
+示例输出：
+{
+  "足弓类型": "正常足弓",
+  "左足弓": "正常",
+  "右足弓": "正常",
+  "分析说明": "左前足46.8% 16.4Kpa，左中足17.9% 6.3Kpa，左后足35.4% 12.4Kpa；右前足46.1% 15.4Kpa，右中足16.0% 5.4Kpa，右后足37.8% 12.7Kpa"
+}
+
+只返回JSON，不要其他内容。"""
+
+    elif analysis_type == "posture":
+        prompt = """这张图片是手机拍摄的体态测试设备屏幕，请识别屏幕上所有可见的文字和数据。
+
+请严格按照以下JSON格式返回（每个字段都必须填写，不能留空）：
+{
+  "头颈对称性": "填写屏幕上的数值或状态",
+  "头颈部倾斜": "填写屏幕上的数值或状态",
+  "肩部对称": "填写屏幕上的数值或状态",
+  "圆肩驼背": "填写屏幕上的数值或状态",
+  "躯干对称": "填写屏幕上的数值或状态",
+  "重心偏移": "填写屏幕上的数值或状态",
+  "骨盆对称": "填写屏幕上的数值或状态",
+  "骨盆倾斜": "填写屏幕上的数值或状态",
+  "风险等级": "填写屏幕上的风险等级",
+  "分析说明": "把屏幕上所有关键数值和文字汇总"
+}
+
+只返回JSON，不要其他内容。"""
+
+    else:  # body_comp
+        prompt = """这张图片是手机拍摄的体成分测试设备屏幕，请识别屏幕上所有可见的文字和数据。
+
+请严格按照以下JSON格式返回（每个字段都必须填写，不能留空）：
+{
+  "BMI": "填写屏幕上的BMI数值",
+  "体脂率": "填写屏幕上的体脂率数值",
+  "肌肉量评估": "填写屏幕上的肌肉量数据",
+  "体态评估": "综合评估说明",
+  "建议": "屏幕上的建议或备注"
+}
+
+只返回JSON，不要其他内容。"""
+    
+    # 调用硅基流动API
+    url = f"{SILICON_FLOW_CONFIG['base_url']}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {SILICON_FLOW_CONFIG['api_key']}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "model": SILICON_FLOW_CONFIG['vision_model'],
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{image_data}"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "text": prompt
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 500,
+        "temperature": 0.1
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        result = response.json()
+        
+        if response.status_code == 200 and "choices" in result:
+            content = result["choices"][0]["message"]["content"]
+            print(f"   AI返回: {content[:200]}...")
+            
+            # 尝试解析JSON
+            try:
+                # 提取JSON部分（可能有前缀/后缀文字）
+                import re
+                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                if json_match:
+                    return json.loads(json_match.group())
+            except:
+                pass
+            
+            # 如果解析失败，返回原始文本
+            return {"分析说明": content}
+        else:
+            print(f"   ❌ API调用失败: {result}")
+            return None
+    except Exception as e:
+        print(f"   ❌ 分析失败: {e}")
+        return None
+
+
+def analyze_video(video_path, analysis_type="posture"):
+    """
+    分析视频：提取帧 → AI分析 → 汇总结果
+    """
+    print(f"\n{'='*60}")
+    print(f"🎥 开始视频分析 (类型: {analysis_type})")
+    print(f"{'='*60}\n")
+    
+    # 提取帧
+    frames = extract_video_frames(video_path, max_frames=3)
+    
+    if not frames:
+        return {"error": "无法提取视频帧"}
+    
+    # 分析每一帧
+    results = []
+    for frame in frames:
+        result = analyze_frame_with_silicon_vl(frame, analysis_type)
+        if result:
+            results.append(result)
+    
+    # 汇总结果（使用第一帧的结果，或投票机制）
+    if results:
+        print(f"\n✅ 分析完成，共分析 {len(results)} 帧")
+        return results[0]  # 返回第一帧的结果
+    else:
+        return {"error": "AI分析失败"}
+
+
+# ========== HTTP 请求处理 ==========
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        path = urlparse(self.path).path
+        
+        if path in ["/", "/index.html"]:
+            self.send_html(f"{HTML_DIR}/教练端管理界面.html")
+        elif path == "/test" or path.endswith("体测录入界面.html"):
+            self.send_html(f"{HTML_DIR}/体测录入界面.html")
+        elif path == "/api/students":
+            students = get_students()
+            self.send_json({"success": True, "data": students})
+        else:
+            self.send_error(404)
+    
+    def do_POST(self):
+        path = urlparse(self.path).path
+        
+        if path == "/api/submit-test":
+            length = int(self.headers["Content-Length"])
+            data = json.loads(self.rfile.read(length))
+            record_id = data.get('record_id')
+            success = submit_test_data(record_id, data)
+            
+            if success:
+                self.send_json({"success": True, "message": "提交成功"})
+            else:
+                self.send_json({"success": False, "message": "提交失败"})
+        
+        elif path == "/api/analyze-video":
+            # 视频AI分析端点
+            try:
+                length = int(self.headers["Content-Length"])
+                data = json.loads(self.rfile.read(length))
+                
+                video_data = data.get('video_data')  # base64编码的视频
+                analysis_type = data.get('analysis_type', 'posture')
+                
+                if not video_data:
+                    self.send_json({"success": False, "error": "缺少视频数据"})
+                    return
+                
+                # 解码base64视频到临时文件
+                import tempfile
+                temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4', dir=TEMP_FRAME_DIR)
+                temp_video_path = temp_video.name
+                temp_video.close()
+                
+                with open(temp_video_path, 'wb') as f:
+                    f.write(base64.b64decode(video_data))
+                
+                print(f"📹 接收到视频: {temp_video_path}")
+                
+                # 分析视频
+                result = analyze_video(temp_video_path, analysis_type)
+                
+                # 清理临时文件
+                try:
+                    os.unlink(temp_video_path)
+                except:
+                    pass
+                
+                if 'error' in result:
+                    self.send_json({"success": False, "error": result['error']})
+                else:
+                    self.send_json({"success": True, "data": result})
+                    
+            except Exception as e:
+                import traceback
+                print(f"❌ 视频分析失败: {e}")
+                traceback.print_exc()
+                self.send_json({"success": False, "error": str(e)})
+        
+        else:
+            self.send_error(404)
+    
+    def send_html(self, filepath):
+        with open(filepath, "rb") as f:
+            content = f.read()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", len(content))
+        self.end_headers()
+        self.wfile.write(content)
+    
+    def send_json(self, data):
+        content = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", len(content))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(content)
+    
+    def log_message(self, format, *args):
+        print(f"[{self.log_date_time_string()}] {format % args}")
+
+def main():
+    port = int(os.environ.get('PORT', 8082))
+    server = HTTPServer(("0.0.0.0", port), Handler)
+    
+    # 获取本机IP
+    try:
+        ip = socket.gethostbyname(socket.gethostname())
+    except:
+        ip = "未知"
+    
+    print("=" * 60)
+    print("🏋️ 邻练体育 - 教练端本地服务器")
+    print("=" * 60)
+    print(f"✅ 服务器启动成功！")
+    print()
+    print(f"📱 访问地址：")
+    print(f"   本机: http://localhost:{port}/")
+    print(f"   教练: http://{ip}:{port}/")
+    print()
+    print(f"📊 API接口：")
+    print(f"   GET  /api/students - 获取学生列表")
+    print(f"   POST /api/submit-test - 提交体测数据")
+    print()
+    print(f"✅ 飞书配置：")
+    print(f"   App ID: {FEISHU_CONFIG['app_id']}")
+    print(f"   App Secret: 已配置")
+    print(f"   多维表格: {FEISHU_CONFIG['base_token']}")
+    print()
+    print(f"🛑 按 Ctrl+C 停止服务器")
+    print("=" * 60)
+    
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n\n👋 服务器已停止")
+        server.shutdown()
+
+if __name__ == "__main__":
+    main()
