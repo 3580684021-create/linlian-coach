@@ -522,18 +522,17 @@
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🦶 足弓评估</div>
                         <div class="video-upload-area" id="footArchUpload" onclick="document.getElementById('footArchVideo').click()">
                             <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传足弓视频</div>
-                            <div class="upload-desc">或拖拽视频文件到此处<br>需要足底清晰视频</div>
+                            <div class="upload-title">点击上传足弓视频（可多张）</div>
+                            <div class="upload-desc">支持同时上传多张照片或多段视频<br>建议3-5张不同角度的照片，准确率更高</div>
                         </div>
-                        <input type="file" id="footArchVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('footArch', this)">
+                        <input type="file" id="footArchVideo" accept="video/*,image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('footArch', this)">
                         
                         <div class="video-preview" id="footArchPreview">
-                            <video controls>
-                                <source src="" type="video/mp4">
-                            </video>
+                            <div id="footArchPreviewGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;"></div>
+                            <video id="footArchVideoPlayer" controls style="width: 100%; border-radius: 12px; display: none;"></video>
                             <div class="video-actions">
-                                <button type="button" class="video-action-btn btn-recognize" onclick="startRecognition('footArch')">
-                                    🤖 开始AI识别
+                                <button type="button" class="video-action-btn btn-recognize" onclick="startMultiRecognition('footArch')">
+                                    🤖 开始AI分析（多图）
                                 </button>
                                 <button type="button" class="video-action-btn btn-reupload" onclick="reuploadVideo('footArch')">
                                     🔄 重新上传
@@ -543,8 +542,8 @@
 
                         <div class="processing" id="footArchProcessing">
                             <div class="processing-spinner"></div>
-                            <div class="processing-text">正在处理视频...</div>
-                            <div class="processing-subtext">浏览器提取关键帧后发送给AI分析</div>
+                            <div class="processing-text">正在分析多张图片...</div>
+                            <div class="processing-subtext" id="footArchProgress">已处理 0/0 张</div>
                         </div>
 
                         <div class="ai-result" id="footArchResult">
@@ -575,18 +574,17 @@
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🧘 体态评估</div>
                         <div class="video-upload-area" id="postureUpload" onclick="document.getElementById('postureVideo').click()">
                             <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传体态评估视频</div>
-                            <div class="upload-desc">或拖拽视频文件到此处<br>需要正面和侧面全身视频</div>
+                            <div class="upload-title">点击上传体态照片（可多张）</div>
+                            <div class="upload-desc">支持同时上传多张照片或多段视频<br>建议正面+侧面各拍1-2张，准确率更高</div>
                         </div>
-                        <input type="file" id="postureVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('posture', this)">
+                        <input type="file" id="postureVideo" accept="video/*,image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('posture', this)">
                         
                         <div class="video-preview" id="posturePreview">
-                            <video controls>
-                                <source src="" type="video/mp4">
-                            </video>
+                            <div id="posturePreviewGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;"></div>
+                            <video id="postureVideoPlayer" controls style="width: 100%; border-radius: 12px; display: none;"></video>
                             <div class="video-actions">
-                                <button type="button" class="video-action-btn btn-recognize" onclick="startRecognition('posture')">
-                                    🤖 开始AI识别
+                                <button type="button" class="video-action-btn btn-recognize" onclick="startMultiRecognition('posture')">
+                                    🤖 开始AI分析（多图）
                                 </button>
                                 <button type="button" class="video-action-btn btn-reupload" onclick="reuploadVideo('posture')">
                                     🔄 重新上传
@@ -596,8 +594,8 @@
 
                         <div class="processing" id="postureProcessing">
                             <div class="processing-spinner"></div>
-                            <div class="processing-text">正在处理视频...</div>
-                            <div class="processing-subtext">浏览器提取关键帧后发送给AI分析</div>
+                            <div class="processing-text">正在分析多张图片...</div>
+                            <div class="processing-subtext" id="postureProgress">已处理 0/0 张</div>
                         </div>
 
                         <div class="ai-result" id="postureResult">
@@ -636,18 +634,17 @@
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">💪 体成分分析</div>
                         <div class="video-upload-area" id="bodyCompUpload" onclick="document.getElementById('bodyCompVideo').click()">
                             <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传体成分分析视频</div>
-                            <div class="upload-desc">或拖拽视频文件到此处<br>需要全身站立视频</div>
+                            <div class="upload-title">点击上传体成分照片（可多张）</div>
+                            <div class="upload-desc">支持同时上传多张照片或多段视频<br>建议正面全身照片1-2张</div>
                         </div>
-                        <input type="file" id="bodyCompVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('bodyComp', this)">
+                        <input type="file" id="bodyCompVideo" accept="video/*,image/*" multiple style="display: none;" onchange="handleMultiMediaUpload('bodyComp', this)">
                         
                         <div class="video-preview" id="bodyCompPreview">
-                            <video controls>
-                                <source src="" type="video/mp4">
-                            </video>
+                            <div id="bodyCompPreviewGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;"></div>
+                            <video id="bodyCompVideoPlayer" controls style="width: 100%; border-radius: 12px; display: none;"></video>
                             <div class="video-actions">
-                                <button type="button" class="video-action-btn btn-recognize" onclick="startRecognition('bodyComp')">
-                                    🤖 开始AI识别
+                                <button type="button" class="video-action-btn btn-recognize" onclick="startMultiRecognition('bodyComp')">
+                                    🤖 开始AI分析（多图）
                                 </button>
                                 <button type="button" class="video-action-btn btn-reupload" onclick="reuploadVideo('bodyComp')">
                                     🔄 重新上传
@@ -657,8 +654,8 @@
 
                         <div class="processing" id="bodyCompProcessing">
                             <div class="processing-spinner"></div>
-                            <div class="processing-text">正在处理视频...</div>
-                            <div class="processing-subtext">浏览器提取关键帧后发送给AI分析</div>
+                            <div class="processing-text">正在分析多张图片...</div>
+                            <div class="processing-subtext" id="bodyCompProgress">已处理 0/0 张</div>
                         </div>
 
                         <div class="ai-result" id="bodyCompResult">
@@ -711,6 +708,13 @@
     </div>
 
     <script>
+        // 存储上传的文件列表
+        window.uploadedFiles = {
+            footArch: [],
+            posture: [],
+            bodyComp: []
+        };
+
         // 页面加载时，从 URL 参数获取学生信息
         window.addEventListener('load', function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -731,26 +735,70 @@
             window.currentRecordId = recordId;
         });
 
-        // 处理视频上传
-        function handleVideoUpload(type, input) {
-            const file = input.files[0];
-            if (!file) return;
+        // 处理多图片/视频上传
+        function handleMultiMediaUpload(type, input) {
+            const files = input.files;
+            if (!files || files.length === 0) return;
 
-            // 检查视频大小（限制10MB以内）
-            if (file.size > 10 * 1024 * 1024) {
-                alert('视频文件过大，请选择10MB以内的视频，或使用手机拍摄短视频（5-10秒即可）');
+            // 检查文件数量限制（最多5个）
+            if (files.length > 5) {
+                alert('最多只能上传5个文件，请重新选择');
                 input.value = '';
                 return;
             }
 
-            // 显示视频预览
+            // 存储文件
+            window.uploadedFiles[type] = Array.from(files);
+
+            // 显示预览
             const preview = document.getElementById(type + 'Preview');
-            const video = preview.querySelector('video');
-            video.src = URL.createObjectURL(file);
+            const grid = document.getElementById(type + 'PreviewGrid');
+            const videoPlayer = document.getElementById(type + 'VideoPlayer');
+
+            // 检查是否有视频
+            const hasVideo = Array.from(files).some(f => f.type.startsWith('video/'));
+            const images = Array.from(files).filter(f => f.type.startsWith('image/'));
+
+            // 隐藏上传区域，显示预览
+            document.getElementById(type + 'Upload').style.display = 'none';
             preview.style.display = 'block';
 
-            // 隐藏上传区域
-            document.getElementById(type + 'Upload').style.display = 'none';
+            if (hasVideo && images.length === 0) {
+                // 只有视频
+                grid.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                videoPlayer.src = URL.createObjectURL(files[0]);
+            } else {
+                // 显示图片网格
+                grid.style.display = 'grid';
+                videoPlayer.style.display = 'none';
+                grid.innerHTML = '';
+
+                images.slice(0, 5).forEach((file, index) => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #f0f0f0;';
+                    
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                    
+                    const badge = document.createElement('span');
+                    badge.textContent = index + 1;
+                    badge.style.cssText = 'position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,0.6); color: white; font-size: 12px; padding: 2px 6px; border-radius: 4px;';
+                    
+                    div.appendChild(img);
+                    div.appendChild(badge);
+                    grid.appendChild(div);
+                });
+
+                // 如果有视频，额外显示
+                if (hasVideo) {
+                    const videoDiv = document.createElement('div');
+                    videoDiv.style.cssText = 'grid-column: span 2; position: relative;';
+                    videoDiv.innerHTML = `<video controls style="width: 100%; border-radius: 8px;"><source src="${URL.createObjectURL(files[0])}" type="video/mp4"></video><span style="position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,0.6); color: white; font-size: 12px; padding: 2px 6px; border-radius: 4px;">视频</span>`;
+                    grid.appendChild(videoDiv);
+                }
+            }
 
             // 隐藏之前的识别结果
             document.getElementById(type + 'Result').style.display = 'none';
@@ -760,9 +808,11 @@
         function reuploadVideo(type) {
             // 清空文件输入
             document.getElementById(type + 'Video').value = '';
+            window.uploadedFiles[type] = [];
 
             // 隐藏预览
             document.getElementById(type + 'Preview').style.display = 'none';
+            document.getElementById(type + 'VideoPlayer').src = '';
 
             // 显示上传区域
             document.getElementById(type + 'Upload').style.display = 'block';
@@ -776,7 +826,7 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            // 设置截图尺寸（减小以加快处理）
+            // 设置截图尺寸
             const maxWidth = 1280;
             const scale = Math.min(1, maxWidth / videoElement.videoWidth);
             canvas.width = videoElement.videoWidth * scale;
@@ -789,15 +839,14 @@
             ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
             // 返回base64图片
-            return canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+            return canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
         }
 
-        // 开始AI识别（视频方式 - 浏览器提取帧后上传图片）
-        async function startRecognition(type) {
-            // 获取视频文件
-            const videoInput = document.getElementById(type + 'Video');
-            if (!videoInput || !videoInput.files[0]) {
-                alert('请先上传视频！');
+        // 多图AI识别（批量处理）
+        async function startMultiRecognition(type) {
+            const files = window.uploadedFiles[type];
+            if (!files || files.length === 0) {
+                alert('请先上传图片或视频！');
                 return;
             }
 
@@ -805,84 +854,126 @@
             document.getElementById(type + 'Processing').style.display = 'block';
             document.getElementById(type + 'Preview').style.display = 'none';
 
+            const progressEl = document.getElementById(type + 'Progress');
+            const analysisType = type === 'footArch' ? 'foot_arch' : type === 'posture' ? 'posture' : 'body_comp';
+
             try {
-                const file = videoInput.files[0];
-                console.log(`📹 处理视频: ${file.name}, 大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
-
-                // 读取视频并提取帧
-                const video = document.createElement('video');
-                video.src = URL.createObjectURL(file);
-                video.muted = true;
-                video.crossOrigin = 'anonymous';
-
-                await new Promise((resolve, reject) => {
-                    video.onloadedmetadata = resolve;
-                    video.onerror = () => reject(new Error('视频加载失败'));
-                });
-
-                // 等待视频准备好
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                // 跳到视频中间位置截图
-                video.currentTime = video.duration / 2;
-                await new Promise(resolve => setTimeout(resolve, 300));
-
-                // 用canvas提取帧
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+                // 提取所有图片
+                const imagePromises = [];
                 
-                // 设置合适的截图尺寸（最大1280px宽度）
-                const maxWidth = 1280;
-                const scale = Math.min(1, maxWidth / video.videoWidth);
-                canvas.width = video.videoWidth * scale;
-                canvas.height = video.videoHeight * scale;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    if (file.type.startsWith('image/')) {
+                        // 直接读取图片
+                        imagePromises.push(new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result.split(',')[1]);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(file);
+                        }));
+                    } else if (file.type.startsWith('video/')) {
+                        // 从视频提取帧
+                        imagePromises.push(new Promise((resolve, reject) => {
+                            const video = document.createElement('video');
+                            video.src = URL.createObjectURL(file);
+                            video.muted = true;
+                            video.onloadedmetadata = () => {
+                                setTimeout(() => {
+                                    resolve(extractFrameFromVideo(video));
+                                    URL.revokeObjectURL(video.src);
+                                }, 500);
+                            };
+                            video.onerror = reject;
+                        }));
+                    }
+                }
 
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                // 等待所有图片提取完成
+                progressEl.textContent = '正在处理图片...';
+                const images = await Promise.all(imagePromises);
 
-                // 转为base64图片
-                const frameData = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
-                console.log(`🖼️ 提取帧成功: ${(frameData.length / 1024).toFixed(1)} KB`);
+                // 逐个发送分析（避免并发过多）
+                const results = [];
+                for (let i = 0; i < images.length; i++) {
+                    progressEl.textContent = `已处理 ${i}/${images.length} 张`;
+                    
+                    try {
+                        const response = await fetch(API_BASE_URL + '/api/analyze-image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                image_data: images[i],
+                                analysis_type: analysisType
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success) {
+                            results.push(data.data);
+                        }
+                    } catch (e) {
+                        console.warn(`图片 ${i+1} 分析失败:`, e);
+                    }
+                }
 
-                // 清理
-                URL.revokeObjectURL(video.src);
-
-                // 调用后端图片分析API
-                console.log('🚀 发送图片到后端进行AI分析...');
-                const response = await fetch(API_BASE_URL + '/api/analyze-image', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        image_data: frameData,
-                        analysis_type: type === 'footArch' ? 'foot_arch' :
-                                      type === 'posture' ? 'posture' :
-                                      'body_comp'
-                    })
-                });
-
-                const data = await response.json();
-                console.log('✅ AI识别结果：', data);
+                progressEl.textContent = `分析完成！共 ${results.length}/${images.length} 张成功`;
 
                 // 隐藏处理动画
                 document.getElementById(type + 'Processing').style.display = 'none';
                 document.getElementById(type + 'Preview').style.display = 'block';
 
-                if (data.success) {
+                if (results.length > 0) {
                     // 显示识别结果
                     document.getElementById(type + 'Result').style.display = 'block';
-                    // 根据类型更新UI
-                    updateAIResult(type, data.data);
+                    // 汇总结果
+                    const mergedResult = mergeResults(results, type);
+                    updateAIResult(type, mergedResult);
                 } else {
-                    alert('AI识别失败：' + (data.error || '未知错误'));
+                    alert('所有图片分析均失败，请检查网络后重试');
                 }
 
             } catch (error) {
                 console.error('❌ AI识别失败：', error);
                 document.getElementById(type + 'Processing').style.display = 'none';
                 document.getElementById(type + 'Preview').style.display = 'block';
-                alert('视频处理失败，请尝试重新上传或使用更短的视频（5-10秒）');
+                alert('处理失败，请重试');
             }
+        }
+
+        // 合并多张图片的分析结果
+        function mergeResults(results, type) {
+            if (results.length === 1) return results[0];
+
+            // 取多数投票或第一个有效值
+            const merged = {};
+
+            if (type === 'footArch') {
+                // 足弓：取第一个有效值，或投票
+                const archTypes = results.map(r => r['足弓类型']).filter(Boolean);
+                merged['足弓类型'] = archTypes[0] || '待确认';
+                merged['左足弓'] = results.find(r => r['左足弓'])?.['左足弓'] || '待确认';
+                merged['右足弓'] = results.find(r => r['右足弓'])?.['右足弓'] || '待确认';
+                merged['分析说明'] = results.find(r => r['分析说明'])?.['分析说明'] || '多图分析中';
+                
+            } else if (type === 'posture') {
+                // 体态：综合多个结果
+                const keys = ['头颈对称性', '头颈部倾斜', '肩部对称', '圆肩驼背', '躯干对称', '重心偏移', '骨盆对称', '骨盆倾斜', '风险等级', '分析说明'];
+                keys.forEach(key => {
+                    const values = results.map(r => r[key]).filter(Boolean);
+                    merged[key] = values[0] || '待确认';
+                });
+                
+            } else if (type === 'bodyComp') {
+                // 体成分：取数值结果
+                const bmiValues = results.map(r => parseFloat(r['BMI'])).filter(v => !isNaN(v));
+                merged['BMI'] = bmiValues.length > 0 ? bmiValues.reduce((a, b) => a + b, 0) / bmiValues.length : '待确认';
+                merged['体脂率'] = results.find(r => r['体脂率'])?.['体脂率'] || '待确认';
+                merged['肌肉量评估'] = results.find(r => r['肌肉量评估'])?.['肌肉量评估'] || '待确认';
+                merged['体态评估'] = results.find(r => r['体态评估'])?.['体态评估'] || '待确认';
+            }
+
+            return merged;
         }
 
         // 更新AI识别结果到UI
