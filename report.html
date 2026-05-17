@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>邻练体育 - AI体测报告</title>
     <script src="config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -415,8 +417,9 @@
 
         <!-- 打印按钮 -->
         <div class="print-section">
-            <button class="print-btn" onclick="window.print()">🖨️ 打印 / 导出PDF</button>
-            <button class="print-btn" style="background: var(--orange);" onclick="shareReport()">📤 分享报告</button>
+            <button class="print-btn" onclick="downloadPDF()">📥 下载PDF</button>
+            <button class="print-btn" onclick="window.print()">🖨️ 打印</button>
+            <button class="print-btn" style="background: var(--orange);" onclick="shareReport()">📤 分享</button>
         </div>
     </div>
 
@@ -511,6 +514,31 @@
             document.getElementById('rptGradeValue').textContent = grade;
         }
 
+
+        // 下载PDF（和屏幕画面一模一样）
+        function downloadPDF() {
+            const element = document.getElementById('reportContent');
+            const name = document.getElementById('rptName').textContent || '体测报告';
+            
+            // 隐藏顶部导航和打印按钮（PDF中不需要）
+            document.querySelector('.header').style.display = 'none';
+            document.querySelector('.print-section').style.display = 'none';
+            
+            const opt = {
+                margin: 0,
+                filename: `邻练体育-体测报告-${name}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                // 恢复显示
+                document.querySelector('.header').style.display = 'block';
+                document.querySelector('.print-section').style.display = 'block';
+            });
+        }
+        
         // 分享报告
         function shareReport() {
             if (navigator.share) {
