@@ -32,6 +32,7 @@ FEISHU_CONFIG = {
     'base_token': os.environ.get('FEISHU_BASE_TOKEN', 'UTJobXJT1a85lDspZfecgPDXnCc'),
     'table_id': os.environ.get('FEISHU_TABLE_ID', 'tblPyAhmraamWM1u'),
     'booking_table_id': os.environ.get('FEISHU_BOOKING_TABLE_ID', 'tblwfDdLgSV1WyzR'),
+    'booking_base_token': os.environ.get('FEISHU_BOOKING_BASE_TOKEN', 'UWNeba4yjaZtC7sC89TcdrVqnLb'),
     'test_table_id': os.environ.get('FEISHU_TEST_TABLE_ID', 'tblyY6kyPk3b62iL'),
 }
 
@@ -158,8 +159,8 @@ def submit_booking(booking_data):
         '状态': '已预约'
     }
     
-    # 提交到飞书
-    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['base_token']}/tables/{FEISHU_CONFIG['booking_table_id']}/records"
+    # 提交到飞书（使用预约表单的base_token）
+    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['booking_base_token']}/tables/{FEISHU_CONFIG['booking_table_id']}/records"
     
     payload = {
         "fields": fields
