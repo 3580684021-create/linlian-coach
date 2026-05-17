@@ -496,8 +496,11 @@
                         </div>
                     </div>
                     <div class="student-actions">
+                        <button class="action-btn btn-secondary" onclick="event.stopPropagation(); viewReport('${student.record_id}', '${encodeURIComponent(student.name)}', '${student.gender}', ${student.age})">
+                            查看报告
+                        </button>
                         <button class="action-btn btn-primary" onclick="event.stopPropagation(); startTest('${student.record_id}')">
-                            ${student.tested ? '查看报告' : '开始测试 →'}
+                            开始测试 →
                         </button>
                     </div>
                 `;
@@ -515,6 +518,12 @@
             btn.classList.add('active');
 
             renderStudents();
+        }
+
+        // 查看报告
+        function viewReport(recordId, name, gender, age) {
+            const url = `report.html?record_id=${recordId}&name=${name}&gender=${gender}&age=${age}`;
+            window.location.href = url;
         }
 
         // 开始测试

@@ -129,6 +129,81 @@ def get_mock_students():
         {"record_id": "rec003", "name": "王小强", "gender": "男", "age": 9, "phone": "137****9012", "location": "人民街道党群", "booking_no": "20260517-003", "status": "已完成"}
     ]
 
+# 获取体测数据
+def get_test_data(record_id):
+    """从飞书读取指定学生的体测数据"""
+    token = get_feishu_token()
+    if not token:
+        print("⚠️  无法获取 token，返回模拟数据")
+        return get_mock_test_data()
+    
+    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['base_token']}/tables/{FEISHU_CONFIG['test_table_id']}/records?filter=CurrentValue.[学员姓名]={record_id}"
+    req = urllib.request.Request(
+        url,
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+    )
+    
+    try:
+        response = urllib.request.urlopen(req)
+        result = json.loads(response.read().decode('utf-8'))
+        
+        if result.get('code') != 0:
+            print(f"❌ 读取体测数据失败: {result.get('msg')}")
+            return get_mock_test_data()
+        
+        records = result.get('data', {}).get('items', [])
+        if not records:
+            print(f"⚠️  未找到记录 {record_id} 的体测数据")
+            return get_mock_test_data()
+        
+        fields = records[0].get('fields', {})
+        
+        data = {
+            'height': fields.get('身高', ''),
+            'weight': fields.get('体重', ''),
+            'vital_capacity': fields.get('肺活量(ml)', ''),
+            'standing_long_jump': fields.get('立定跳远(cm)', ''),
+            'sit_and_reach': fields.get('体前屈(cm)', ''),
+            'push_up': '',
+            'plank': '',
+            'risk_level': '低'
+        }
+        
+        # 从备注中解析
+        notes = fields.get('备注说明', '')
+        if '跪姿俯卧撑' in notes:
+            try:
+                data['push_up'] = notes.split('跪姿俯卧撑: ')[1].split(' 次')[0]
+            except:
+                pass
+        if '平板支撑' in notes:
+            try:
+                data['plank'] = notes.split('平板支撑: ')[1].split(' 秒')[0]
+            except:
+                pass
+        
+        print(f"✅ 读取到体测数据：{data}")
+        return data
+    except Exception as e:
+        print(f"❌ 读取体测数据失败: {e}")
+        return get_mock_test_data()
+
+def get_mock_test_data():
+    """返回模拟体测数据"""
+    return {
+        'height': '132',
+        'weight': '28',
+        'vital_capacity': '1800',
+        'standing_long_jump': '120',
+        'sit_and_reach': '15',
+        'push_up': '15',
+        'plank': '60',
+        'risk_level': '低'
+    }
+
 # 提交体测数据
 def submit_test_data(record_id, test_data):
     """提交体测数据到飞书"""
@@ -450,6 +525,8 @@ class Handler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         path = urlparse(self.path).path
+        query = urlparse(self.path).query
+        params = urllib.parse.parse_qs(query)
         
         if path in ["/", "/index.html"]:
             self.send_html(f"{HTML_DIR}/教练端管理界面.html")
@@ -458,6 +535,13 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/api/students":
             students = get_students()
             self.send_json({"success": True, "data": students})
+        elif path == "/api/get-test-data":
+            record_id = params.get('record_id', [None])[0]
+            if record_id:
+                data = get_test_data(record_id)
+                self.send_json({"success": True, "data": data})
+            else:
+                self.send_json({"success": False, "error": "缺少 record_id"})
         else:
             self.send_error(404)
     
