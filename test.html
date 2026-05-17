@@ -700,12 +700,94 @@
                 <div class="processing-subtext">提交后系统将自动生成报告</div>
             </div>
 
-            <!-- 成功提示 -->
-            <div id="successMessage" style="display: none; text-align: center; padding: 40px 20px;">
-                <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
-                <div style="font-size: 24px; font-weight: 700; color: var(--brand-green); margin-bottom: 12px;">提交成功！</div>
-                <div style="font-size: 16px; color: var(--text-gray); margin-bottom: 30px;">体测数据已成功录入，正在生成报告...</div>
-                <a href="教练端管理界面.html" class="back-btn">返回学生列表</a>
+            <!-- 报告预览区 -->
+            <div id="reportPreview" style="display: none;">
+                <div class="card" style="background: var(--brand-bg); margin: 20px auto; max-width: 800px; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://3580684021-create.github.io/linlian-coach/images/logo.png" alt="邻练体育" style="width: 80px; margin-bottom: 10px;" onerror="this.style.display='none'">
+                        <h2 style="color: var(--brand-green); margin: 10px 0;">AI体测分析报告</h2>
+                        <p style="color: var(--text-gray); font-size: 14px;">邻练课后健康 · 社区体育托管</p>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <h3 style="color: var(--text-dark); border-bottom: 2px solid var(--brand-light); padding-bottom: 10px; margin-bottom: 15px;">
+                            👤 学员信息
+                        </h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <p><strong>姓名：</strong><span id="reportName">-</span></p>
+                            <p><strong>测试日期：</strong><span id="reportDate">-</span></p>
+                            <p><strong>身高：</strong><span id="reportHeight">-</span> cm</p>
+                            <p><strong>体重：</strong><span id="reportWeight">-</span> kg</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <h3 style="color: var(--text-dark); border-bottom: 2px solid var(--orange); padding-bottom: 10px; margin-bottom: 15px;">
+                            🏃 体能测试结果
+                        </h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <p><strong>肺活量：</strong><span id="reportVital">-</span> ml</p>
+                            <p><strong>立定跳远：</strong><span id="reportJump">-</span> cm</p>
+                            <p><strong>坐位体前屈：</strong><span id="reportSit">-</span> cm</p>
+                            <p><strong>跪姿俯卧撑：</strong><span id="reportPushup">-</span> 个</p>
+                            <p><strong>平板支撑：</strong><span id="reportPlank">-</span> 秒</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <h3 style="color: var(--text-dark); border-bottom: 2px solid var(--brand-green); padding-bottom: 10px; margin-bottom: 15px;">
+                            🦶 足弓评估
+                        </h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <p><strong>足弓类型：</strong><span id="reportFootType">-</span></p>
+                            <p><strong>左足弓：</strong><span id="reportLeftFoot">-</span></p>
+                            <p><strong>右足弓：</strong><span id="reportRightFoot">-</span></p>
+                        </div>
+                        <p style="margin-top: 10px; color: var(--text-gray);" id="reportFootAdvice">-</p>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <h3 style="color: var(--text-dark); border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 15px;">
+                            🧘 体态评估
+                        </h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <p><strong>头颈对称：</strong><span id="reportHead">-</span></p>
+                            <p><strong>肩部对称：</strong><span id="reportShoulder">-</span></p>
+                            <p><strong>圆肩驼背：</strong><span id="reportRound">-</span></p>
+                            <p><strong>重心偏移：</strong><span id="reportCenter">-</span></p>
+                            <p><strong>骨盆对齐：</strong><span id="reportPelvis">-</span></p>
+                            <p><strong>风险等级：</strong><span id="reportRisk" style="color: var(--orange);">-</span></p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <h3 style="color: var(--text-dark); border-bottom: 2px solid #9C27B0; padding-bottom: 10px; margin-bottom: 15px;">
+                            💪 体成分分析
+                        </h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <p><strong>BMI：</strong><span id="reportBMI">-</span></p>
+                            <p><strong>体脂率：</strong><span id="reportFat">-</span></p>
+                            <p><strong>肌肉量：</strong><span id="reportMuscle">-</span></p>
+                            <p><strong>综合评估：</strong><span id="reportAssess">-</span></p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--brand-green); color: white; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                        <h3>🎯 综合评级</h3>
+                        <div style="font-size: 48px; font-weight: bold; margin: 10px 0;" id="reportGrade">优秀</div>
+                        <p style="font-size: 14px; opacity: 0.9;">继续保持，科学训练</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="color: var(--text-light); font-size: 12px; margin-bottom: 15px;">
+                            本报告由AI智能分析生成 · 仅供参考
+                        </p>
+                        <button onclick="window.print()" class="back-btn" style="background: var(--brand-green); margin-right: 10px;">
+                            🖨️ 打印/导出PDF
+                        </button>
+                        <a href="coach.html" class="back-btn">返回学生列表</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -903,8 +985,10 @@
                 document.getElementById('submitProcessing').style.display = 'none';
                 
                 if (data.success) {
-                    // 显示成功提示
-                    document.getElementById('successMessage').style.display = 'block';
+                    // 填充报告数据
+                    fillReportData();
+                    // 显示报告预览
+                    document.getElementById('reportPreview').style.display = 'block';
                 } else {
                     // 显示错误
                     alert('提交失败：' + (data.message || '未知错误'));
@@ -921,6 +1005,52 @@
                 alert('提交失败，请检查网络连接或稍后重试');
                 document.getElementById('testForm').style.display = 'block';
             });
+        }
+
+        // 填充报告数据
+        function fillReportData() {
+            // 学员信息
+            document.getElementById('reportName').textContent = document.getElementById('studentName').textContent;
+            document.getElementById('reportDate').textContent = new Date().toLocaleDateString('zh-CN');
+            document.getElementById('reportHeight').textContent = document.getElementById('height').value || '-';
+            document.getElementById('reportWeight').textContent = document.getElementById('weight').value || '-';
+            
+            // 体能测试
+            document.getElementById('reportVital').textContent = document.getElementById('lungCapacity').value || '-';
+            document.getElementById('reportJump').textContent = document.getElementById('standingLongJump').value || '-';
+            document.getElementById('reportSit').textContent = document.getElementById('sitAndReach').value || '-';
+            document.getElementById('reportPushup').textContent = document.getElementById('kneePushUps').value || '-';
+            document.getElementById('reportPlank').textContent = document.getElementById('plankTime').value || '-';
+            
+            // 足弓评估
+            document.getElementById('reportFootType').textContent = document.getElementById('footArchType').textContent;
+            document.getElementById('reportLeftFoot').textContent = document.getElementById('leftFootArch').textContent;
+            document.getElementById('reportRightFoot').textContent = document.getElementById('rightFootArch').textContent;
+            document.getElementById('reportFootAdvice').textContent = document.getElementById('footArchAdvice').textContent;
+            
+            // 体态评估
+            document.getElementById('reportHead').textContent = document.getElementById('headNeckSymmetry').textContent;
+            document.getElementById('reportShoulder').textContent = document.getElementById('shoulderSymmetry').textContent;
+            document.getElementById('reportRound').textContent = document.getElementById('roundShoulder').textContent;
+            document.getElementById('reportCenter').textContent = document.getElementById('centerOffset').textContent;
+            document.getElementById('reportPelvis').textContent = document.getElementById('pelvisAlignment').textContent;
+            document.getElementById('reportRisk').textContent = document.getElementById('riskLevel').textContent;
+            
+            // 体成分
+            document.getElementById('reportBMI').textContent = document.getElementById('bmi').textContent;
+            document.getElementById('reportFat').textContent = document.getElementById('bodyFatRate').textContent;
+            document.getElementById('reportMuscle').textContent = document.getElementById('muscleMass').textContent;
+            document.getElementById('reportAssess').textContent = document.getElementById('bodyCompAssessment').textContent;
+            
+            // 根据风险等级计算综合评级
+            const riskLevel = document.getElementById('riskLevel').textContent;
+            let grade = '优秀';
+            if (riskLevel.includes('中') || riskLevel.includes('中等')) {
+                grade = '良好';
+            } else if (riskLevel.includes('高')) {
+                grade = '需加强';
+            }
+            document.getElementById('reportGrade').textContent = grade;
         }
 
         // 拖拽上传功能
