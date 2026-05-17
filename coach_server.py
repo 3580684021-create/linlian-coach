@@ -533,20 +533,10 @@ def main():
     port = int(os.environ.get('PORT', 8082))
     server = HTTPServer(("0.0.0.0", port), Handler)
     
-    # 获取本机IP
-    try:
-        ip = socket.gethostbyname(socket.gethostname())
-    except:
-        ip = "未知"
-    
     print("=" * 60)
-    print("🏋️ 邻练体育 - 教练端本地服务器")
+    print("🏋️ 邻练体育 - 教练端服务器")
     print("=" * 60)
-    print(f"✅ 服务器启动成功！")
-    print()
-    print(f"📱 访问地址：")
-    print(f"   本机: http://localhost:{port}/")
-    print(f"   教练: http://{ip}:{port}/")
+    print(f"✅ 服务器启动成功！监听端口: {port}")
     print()
     print(f"📊 API接口：")
     print(f"   GET  /api/students - 获取学生列表")
