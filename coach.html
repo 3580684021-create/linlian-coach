@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邻练体育 - 教练端管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --brand-green: #7CB342;
+            --brand-dark: #558B2F;
+            --brand-light: #AED581;
+            --brand-bg: #F1F8E9;
+            --text-dark: #2E3A1F;
+            --text-gray: #5C6B4E;
+            --text-light: #8B9A7D;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #F5F5F5;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-dark) 100%);
+            padding: 20px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .refresh-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .filter-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--brand-bg);
+            border: 2px solid transparent;
+            border-radius: 100px;
+            font-size: 14px;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--brand-light);
+            color: var(--brand-dark);
+        }
+
+        .filter-btn.active {
+            background: var(--brand-green);
+            color: white;
+            border-color: var(--brand-green);
+        }
+
+        /* 统计信息 */
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #E8F5E9;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--brand-green);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* 学生列表 */
+        .student-section {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .student-count {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .student-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .student-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(124,179,66,0.15);
+        }
+
+        .student-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .student-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+
+        .student-detail {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .student-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(124,179,66,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124,179,66,0.4);
+        }
+
+        .btn-secondary {
+            background: var(--brand-bg);
+            color: var(--brand-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--brand-light);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .empty-desc {
+            font-size: 14px;
+        }
+
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--brand-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .header-title {
+                font-size: 18px;
+            }
+
+            .student-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .student-actions {
+                width: 100%;
+            }
+
+            .action-btn {
+                flex: 1;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <div class="header-title">
+                    💪 邻练体育 - 教练端
+                </div>
+                <div class="header-subtitle">体测管理系统</div>
+            </div>
+            <button class="refresh-btn" onclick="loadStudents()">
+                🔄 刷新
+            </button>
+        </div>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="filter-section">
+        <div class="filter-card">
+            <div class="filter-title">
+                📍 选择党群服务中心
+            </div>
+            <div class="filter-options" id="locationFilter">
+                <button class="filter-btn active" onclick="filterByLocation('全部', this)">
+                    全部
+                </button>
+                <button class="filter-btn" onclick="filterByLocation('人民街道党群服务中心', this)">
+                    人民街道党群服务中心
+                </button>
+                <button class="filter-btn" onclick="filterByLocation('其他地点', this)">
+                    其他地点
+                </button>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">总预约</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="todayCount">0</div>
+                    <div class="stat-label">今日预约</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="testedCount">0</div>
+                    <div class="stat-label">已完成测试</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 学生列表 -->
+    <div class="student-section">
+        <div class="section-header">
+            <div class="section-title">预约学生列表</div>
+            <div class="student-count" id="studentCount">共 0 人</div>
+        </div>
+
+        <div class="student-list" id="studentList">
+            <!-- 学生卡片将通过 JavaScript 动态生成 -->
+        </div>
+
+        <!-- 加载状态 -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>正在加载学生数据...</div>
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">📭</div>
+            <div class="empty-title">暂无预约学生</div>
+            <div class="empty-desc">暂无符合条件的预约记录</div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据（实际应该从飞书 API 读取）
+        let allStudents = [
+            {
+                record_id: "rec27pD8Ds3HlL",
+                id: "20260517-001",
+                name: "苏测试",
+                gender: "男",
+                age: 7,
+                phone: "13144121962",
+                date: "2026-05-17",
+                time: "下午",
+                location: "人民街道党群服务中心",
+                tested: false
+            }
+        ];
+
+        let currentFilter = '全部';
+
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            loadStudents();
+        });
+
+        // 加载学生数据
+        function loadStudents() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('studentList').innerHTML = '';
+            document.getElementById('emptyState').style.display = 'none';
+
+            // 模拟 API 延迟
+            setTimeout(() => {
+                renderStudents();
+                updateStats();
+                document.getElementById('loading').style.display = 'none';
+            }, 500);
+        }
+
+        // 渲染学生列表
+        function renderStudents() {
+            const container = document.getElementById('studentList');
+            container.innerHTML = '';
+
+            // 筛选数据
+            let filtered = allStudents;
+            if (currentFilter !== '全部') {
+                filtered = allStudents.filter(s => s.location === currentFilter);
+            }
+
+            if (filtered.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('studentCount').textContent = '共 0 人';
+                return;
+            }
+
+            document.getElementById('studentCount').textContent = `共 ${filtered.length} 人`;
+
+            filtered.forEach(student => {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.onclick = () => startTest(student);
+
+                card.innerHTML = `
+                    <div class="student-avatar">${student.name[0]}</div>
+                    <div class="student-info">
+                        <div class="student-name">${student.name} <span style="font-size:14px;color:var(--text-light);">(${student.id})</span></div>
+                        <div class="student-details">
+                            <div class="student-detail">👦 ${student.gender}</div>
+                            <div class="student-detail">🎂 ${student.age}岁</div>
+                            <div class="student-detail">📅 ${student.date}</div>
+                            <div class="student-detail">⏰ ${student.time}</div>
+                            <div class="student-detail">📍 ${student.location}</div>
+                        </div>
+                    </div>
+                    <div class="student-actions">
+                        <button class="action-btn btn-primary" onclick="event.stopPropagation(); startTest('${student.record_id}')">
+                            ${student.tested ? '查看报告' : '开始测试 →'}
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // 按地点筛选
+        function filterByLocation(location, btn) {
+            currentFilter = location;
+
+            // 更新按钮状态
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            renderStudents();
+        }
+
+        // 开始测试
+        function startTest(student) {
+            // 跳转到测试界面
+            const testUrl = `体测录入界面.html?record_id=${student.record_id}&name=${encodeURIComponent(student.name)}&gender=${encodeURIComponent(student.gender)}&age=${student.age}`;
+            window.location.href = testUrl;
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+
+            document.getElementById('totalCount').textContent = allStudents.length;
+            document.getElementById('todayCount').textContent = allStudents.filter(s => s.date === today).length;
+            document.getElementById('testedCount').textContent = allStudents.filter(s => s.tested).length;
+        }
+    </script>
+</body>
+</html>

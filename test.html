@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邻练体育 - 体测录入</title>
+    <script src="config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --brand-green: #7CB342;
+            --brand-dark: #558B2F;
+            --brand-light: #AED581;
+            --brand-bg: #F1F8E9;
+            --text-dark: #2E3A1F;
+            --text-gray: #5C6B4E;
+            --text-light: #8B9A7D;
+            --white: #ffffff;
+            --orange: #FF9800;
+            --orange-light: #FFF3E0;
+            --blue: #2196F3;
+            --blue-light: #E3F2FD;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #F5F5F5;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-dark) 100%);
+            padding: 20px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        /* 学生信息卡 */
+        .student-card {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .student-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #E8F5E9;
+        }
+
+        .student-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .student-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        /* 板块样式 */
+        .section-block {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--orange), #F57C00);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(255,152,0,0.3);
+        }
+
+        .section-header.blue {
+            background: linear-gradient(135deg, var(--blue), #1976D2);
+            box-shadow: 0 4px 12px rgba(33,150,243,0.3);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .section-desc {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 2px solid #E8F5E9;
+            border-radius: 10px;
+            font-size: 16px;
+            color: var(--text-dark);
+            transition: all 0.3s;
+            background: var(--brand-bg);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-green);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(124,179,66,0.1);
+        }
+
+        /* 视频上传区域 */
+        .video-upload-area {
+            border: 2px dashed var(--brand-light);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--brand-bg);
+            margin-bottom: 16px;
+        }
+
+        .video-upload-area:hover {
+            border-color: var(--brand-green);
+            background: #E8F5E9;
+        }
+
+        .video-upload-area.dragover {
+            border-color: var(--brand-green);
+            background: #E8F5E9;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        .upload-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .upload-desc {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* 视频预览 */
+        .video-preview {
+            display: none;
+            margin-bottom: 16px;
+        }
+
+        .video-preview video {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .video-action-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-recognize {
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(124,179,66,0.3);
+        }
+
+        .btn-recognize:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124,179,66,0.4);
+        }
+
+        .btn-reupload {
+            background: var(--brand-bg);
+            color: var(--text-gray);
+        }
+
+        .btn-reupload:hover {
+            background: var(--brand-light);
+        }
+
+        /* AI识别结果 */
+        .ai-result {
+            display: none;
+            background: var(--brand-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            border: 2px solid var(--brand-light);
+        }
+
+        .ai-result-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-result-content {
+            font-size: 14px;
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        .ai-result-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(124,179,66,0.1);
+        }
+
+        .ai-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .ai-result-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            min-width: 100px;
+        }
+
+        .ai-result-value {
+            color: var(--brand-dark);
+            font-weight: 500;
+        }
+
+        /* 处理动画 */
+        .processing {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .processing-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #E8F5E9;
+            border-top: 4px solid var(--brand-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .processing-text {
+            font-size: 16px;
+            color: var(--brand-green);
+            font-weight: 600;
+        }
+
+        .processing-subtext {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+
+        /* 提交按钮 */
+        .submit-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #E8F5E9;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(124,179,66,0.3);
+            letter-spacing: 2px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124,179,66,0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .student-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-content">
+            <a href="教练端管理界面.html" class="back-btn">← 返回</a>
+            <div>
+                <div class="header-title">体测数据录入</div>
+                <div class="header-subtitle">请录入体测数据，视频将由AI自动识别</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 学生信息 -->
+    <div class="student-card">
+        <div class="card">
+            <div class="student-header">
+                <div class="student-avatar" id="studentAvatar">苏</div>
+                <div class="student-info">
+                    <div class="student-name" id="studentName">苏测试</div>
+                    <div class="student-meta">
+                        <span>🔢 编号：<span id="studentId">20260517-001</span></span>
+                        <span>👦 性别：<span id="studentGender">男</span></span>
+                        <span>🎂 年龄：<span id="studentAge">7</span>岁</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 体测表单 -->
+            <form id="testForm" onsubmit="submitTestData(event)">
+                
+                <!-- 板块一：体能测试 -->
+                <div class="section-block">
+                    <div class="section-header">
+                        <div class="section-title">🏃 板块一：体能测试</div>
+                        <div class="section-desc">手动录入学生的体能测试数据</div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">📏 身高 (cm)</label>
+                            <input type="number" class="form-input" id="height" placeholder="例如：132" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">⚖️ 体重 (kg)</label>
+                            <input type="number" class="form-input" id="weight" placeholder="例如：72" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🫁 肺活量 (ml)</label>
+                            <input type="number" class="form-input" id="lungCapacity" placeholder="例如：1800" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🏃 立定跳远 (cm)</label>
+                            <input type="number" class="form-input" id="standingLongJump" placeholder="例如：120" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🤸 坐位体前屈 (cm)</label>
+                            <input type="number" class="form-input" id="sitAndReach" placeholder="例如：15" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">💪 握力 (kg)</label>
+                            <input type="number" class="form-input" id="gripStrength" placeholder="例如：15" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🏃♂️ 50米跑 (秒)</label>
+                            <input type="number" class="form-input" id="sprint50m" placeholder="例如：10.5" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🏃♂️➡️ 1000米跑 (秒)</label>
+                            <input type="number" class="form-input" id="run1000m" placeholder="例如：300" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🤾 跪姿俯卧撑 (个)</label>
+                            <input type="number" class="form-input" id="kneePushUps" placeholder="例如：15">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🧘 极限平板支撑时间 (秒)</label>
+                            <input type="number" class="form-input" id="plankTime" placeholder="例如：60">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 板块二：体态测试 -->
+                <div class="section-block">
+                    <div class="section-header blue">
+                        <div class="section-title">🧘 板块二：体态测试</div>
+                        <div class="section-desc">上传视频，由AI自动识别分析</div>
+                    </div>
+
+                    <!-- 足弓评估 -->
+                    <div style="margin-bottom: 30px;">
+                        <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🦶 足弓评估</div>
+                        <div class="video-upload-area" id="footArchUpload" onclick="document.getElementById('footArchVideo').click()">
+                            <div class="upload-icon">📹</div>
+                            <div class="upload-title">点击上传足弓视频</div>
+                            <div class="upload-desc">或拖拽视频文件到此处<br>需要足底清晰视频</div>
+                        </div>
+                        <input type="file" id="footArchVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('footArch', this)">
+                        
+                        <div class="video-preview" id="footArchPreview">
+                            <video controls>
+                                <source src="" type="video/mp4">
+                            </video>
+                            <div class="video-actions">
+                                <button type="button" class="video-action-btn btn-recognize" onclick="startRecognition('footArch')">
+                                    🤖 开始AI识别
+                                </button>
+                                <button type="button" class="video-action-btn btn-reupload" onclick="reuploadVideo('footArch')">
+                                    🔄 重新上传
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="processing" id="footArchProcessing">
+                            <div class="processing-spinner"></div>
+                            <div class="processing-text">AI正在识别足弓...</div>
+                            <div class="processing-subtext">请稍候，预计需要10-15秒</div>
+                        </div>
+
+                        <div class="ai-result" id="footArchResult">
+                            <div class="ai-result-title">✅ AI识别结果</div>
+                            <div class="ai-result-content">
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">足弓类型：</span>
+                                    <span class="ai-result-value" id="footArchType">正常足弓</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">左足弓：</span>
+                                    <span class="ai-result-value" id="leftFootArch">正常</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">右足弓：</span>
+                                    <span class="ai-result-value" id="rightFootArch">正常</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">建议：</span>
+                                    <span class="ai-result-value" id="footArchAdvice">足弓正常，继续保持良好的运动习惯</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 体态评估 -->
+                    <div style="margin-bottom: 30px;">
+                        <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🧘 体态评估</div>
+                        <div class="video-upload-area" id="postureUpload" onclick="document.getElementById('postureVideo').click()">
+                            <div class="upload-icon">📹</div>
+                            <div class="upload-title">点击上传体态评估视频</div>
+                            <div class="upload-desc">或拖拽视频文件到此处<br>需要正面和侧面全身视频</div>
+                        </div>
+                        <input type="file" id="postureVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('posture', this)">
+                        
+                        <div class="video-preview" id="posturePreview">
+                            <video controls>
+                                <source src="" type="video/mp4">
+                            </video>
+                            <div class="video-actions">
+                                <button type="button" class="video-action-btn btn-recognize" onclick="startRecognition('posture')">
+                                    🤖 开始AI识别
+                                </button>
+                                <button type="button" class="video-action-btn btn-reupload" onclick="reuploadVideo('posture')">
+                                    🔄 重新上传
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="processing" id="postureProcessing">
+                            <div class="processing-spinner"></div>
+                            <div class="processing-text">AI正在识别体态...</div>
+                            <div class="processing-subtext">正在分析头颈、肩部、骨盆等8项指标</div>
+                        </div>
+
+                        <div class="ai-result" id="postureResult">
+                            <div class="ai-result-title">✅ AI识别结果</div>
+                            <div class="ai-result-content">
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">头颈对称性：</span>
+                                    <span class="ai-result-value" id="headNeckSymmetry">正常</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">肩部对称性：</span>
+                                    <span class="ai-result-value" id="shoulderSymmetry">正常</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">圆肩：</span>
+                                    <span class="ai-result-value" id="roundShoulder">无</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">重心偏移：</span>
+                                    <span class="ai-result-value" id="centerOffset">无</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">骨盆对齐：</span>
+                                    <span class="ai-result-value" id="pelvisAlignment">正常</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">风险等级：</span>
+                                    <span class="ai-result-value" id="riskLevel">低风险</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 体成分分析 -->
+                    <div style="margin-bottom: 30px;">
+                        <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">💪 体成分分析</div>
+                        <div class="video-upload-area" id="bodyCompUpload" onclick="document.getElementById('bodyCompVideo').click()">
+                            <div class="upload-icon">📹</div>
+                            <div class="upload-title">点击上传体成分分析视频</div>
+                            <div class="upload-desc">或拖拽视频文件到此处<br>需要全身站立视频</div>
+                        </div>
+                        <input type="file" id="bodyCompVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('bodyComp', this)">
+                        
+                        <div class="video-preview" id="bodyCompPreview">
+                            <video controls>
+                                <source src="" type="video/mp4">
+                            </video>
+                            <div class="video-actions">
+                                <button type="button" class="video-action-btn btn-recognize" onclick="startRecognition('bodyComp')">
+                                    🤖 开始AI识别
+                                </button>
+                                <button type="button" class="video-action-btn btn-reupload" onclick="reuploadVideo('bodyComp')">
+                                    🔄 重新上传
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="processing" id="bodyCompProcessing">
+                            <div class="processing-spinner"></div>
+                            <div class="processing-text">AI正在分析体成分...</div>
+                            <div class="processing-subtext">正在计算BMI、体脂率、肌肉量等指标</div>
+                        </div>
+
+                        <div class="ai-result" id="bodyCompResult">
+                            <div class="ai-result-title">✅ AI分析结果</div>
+                            <div class="ai-result-content">
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">BMI：</span>
+                                    <span class="ai-result-value" id="bmi">22.5</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">体脂率：</span>
+                                    <span class="ai-result-value" id="bodyFatRate">18%</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">肌肉量：</span>
+                                    <span class="ai-result-value" id="muscleMass">正常</span>
+                                </div>
+                                <div class="ai-result-item">
+                                    <span class="ai-result-label">评估：</span>
+                                    <span class="ai-result-value" id="bodyCompAssessment">体成分正常</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        提交体测数据 →
+                    </button>
+                </div>
+            </form>
+
+            <!-- 加载动画 -->
+            <div class="processing" id="submitProcessing" style="display: none;">
+                <div class="processing-spinner"></div>
+                <div class="processing-text">正在提交数据...</div>
+                <div class="processing-subtext">提交后系统将自动生成报告</div>
+            </div>
+
+            <!-- 成功提示 -->
+            <div id="successMessage" style="display: none; text-align: center; padding: 40px 20px;">
+                <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                <div style="font-size: 24px; font-weight: 700; color: var(--brand-green); margin-bottom: 12px;">提交成功！</div>
+                <div style="font-size: 16px; color: var(--text-gray); margin-bottom: 30px;">体测数据已成功录入，正在生成报告...</div>
+                <a href="教练端管理界面.html" class="back-btn">返回学生列表</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时，从 URL 参数获取学生信息
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const studentName = urlParams.get('name') || '苏测试';
+            const studentGender = urlParams.get('gender') || '男';
+            const studentAge = urlParams.get('age') || '7';
+            const recordId = urlParams.get('record_id') || '';
+            const studentId = urlParams.get('id') || '20260517-001';
+
+            // 更新页面显示
+            document.getElementById('studentAvatar').textContent = studentName[0];
+            document.getElementById('studentName').textContent = studentName;
+            document.getElementById('studentGender').textContent = studentGender;
+            document.getElementById('studentAge').textContent = studentAge;
+            document.getElementById('studentId').textContent = studentId;
+
+            // 存储 record_id（用于后续更新飞书表格）
+            window.currentRecordId = recordId;
+        });
+
+        // 处理视频上传
+        function handleVideoUpload(type, input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // 显示视频预览
+            const preview = document.getElementById(type + 'Preview');
+            const video = preview.querySelector('video');
+            video.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+
+            // 隐藏上传区域
+            document.getElementById(type + 'Upload').style.display = 'none';
+
+            // 隐藏之前的识别结果
+            document.getElementById(type + 'Result').style.display = 'none';
+        }
+
+        // 重新上传视频
+        function reuploadVideo(type) {
+            // 清空文件输入
+            document.getElementById(type + 'Video').value = '';
+
+            // 隐藏预览
+            document.getElementById(type + 'Preview').style.display = 'none';
+
+            // 显示上传区域
+            document.getElementById(type + 'Upload').style.display = 'block';
+
+            // 隐藏识别结果
+            document.getElementById(type + 'Result').style.display = 'none';
+        }
+
+        // 开始AI识别
+        function startRecognition(type) {
+            // 获取视频文件
+            const videoInput = document.getElementById(type + 'Video');
+            if (!videoInput || !videoInput.files[0]) {
+                alert('请先上传视频！');
+                return;
+            }
+
+            // 显示处理动画
+            document.getElementById(type + 'Processing').style.display = 'block';
+            document.getElementById(type + 'Preview').style.display = 'none';
+
+            // 读取视频为base64
+            const file = videoInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const base64Data = e.target.result.split(',')[1];  // 去掉 data:video/mp4;base64, 前缀
+
+                // 调用后端API
+                fetch(API_BASE_URL + '/api/analyze-video', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        video_data: base64Data,
+                        analysis_type: type === 'footArch' ? 'foot_arch' :
+                                      type === 'posture' ? 'posture' :
+                                      'body_comp'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('AI识别结果：', data);
+
+                    // 隐藏处理动画
+                    document.getElementById(type + 'Processing').style.display = 'none';
+                    document.getElementById(type + 'Preview').style.display = 'block';
+
+                    if (data.success) {
+                        // 显示识别结果
+                        document.getElementById(type + 'Result').style.display = 'block';
+
+                        // 根据类型更新UI
+                        updateAIResult(type, data.data);
+                    } else {
+                        alert('AI识别失败：' + (data.error || '未知错误'));
+                    }
+                })
+                .catch(error => {
+                    console.error('AI识别失败：', error);
+                    document.getElementById(type + 'Processing').style.display = 'none';
+                    document.getElementById(type + 'Preview').style.display = 'block';
+                    alert('AI识别失败，请确保本地服务器已启动（localhost:8082）');
+                });
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // 更新AI识别结果到UI
+        function updateAIResult(type, data) {
+            if (type === 'footArch') {
+                // 足弓评估结果
+                if (data['足弓类型']) document.getElementById('footArchType').textContent = data['足弓类型'];
+                if (data['左足弓']) document.getElementById('leftFootArch').textContent = data['左足弓'];
+                if (data['右足弓']) document.getElementById('rightFootArch').textContent = data['右足弓'];
+                if (data['分析说明']) document.getElementById('footArchAdvice').textContent = data['分析说明'];
+
+            } else if (type === 'posture') {
+                // 体态评估结果
+                if (data['头颈对称性']) document.getElementById('headNeckSymmetry').textContent = data['头颈对称性'];
+                if (data['肩部对称']) document.getElementById('shoulderSymmetry').textContent = data['肩部对称'];
+                if (data['圆肩驼背']) document.getElementById('roundShoulder').textContent = data['圆肩驼背'];
+                if (data['重心偏移']) document.getElementById('centerOffset').textContent = data['重心偏移'];
+                if (data['骨盆对称']) document.getElementById('pelvisAlignment').textContent = data['骨盆对称'];
+                if (data['风险等级']) document.getElementById('riskLevel').textContent = data['风险等级'];
+
+            } else if (type === 'bodyComp') {
+                // 体成分分析结果
+                if (data['BMI']) document.getElementById('bmi').textContent = data['BMI'];
+                if (data['体脂率']) document.getElementById('bodyFatRate').textContent = data['体脂率'];
+                if (data['肌肉量评估']) document.getElementById('muscleMass').textContent = data['肌肉量评估'];
+                if (data['体态评估']) document.getElementById('bodyCompAssessment').textContent = data['体态评估'];
+            }
+        }
+
+        // 提交体测数据
+        function submitTestData(event) {
+            event.preventDefault();
+
+            // 验证是否已完成所有AI识别
+            const footArchResult = document.getElementById('footArchResult').style.display;
+            const postureResult = document.getElementById('postureResult').style.display;
+            const bodyCompResult = document.getElementById('bodyCompResult').style.display;
+
+            if (footArchResult === 'none' || postureResult === 'none' || bodyCompResult === 'none') {
+                alert('请先完成所有视频的AI识别！');
+                return;
+            }
+
+            // 显示提交动画
+            document.getElementById('testForm').style.display = 'none';
+            document.getElementById('submitProcessing').style.display = 'block';
+
+            // 收集所有数据（匹配后端API字段名）
+            const testData = {
+                record_id: window.currentRecordId,
+                student_name: document.getElementById('studentName').textContent,
+                // 体能测试数据
+                vital_capacity: document.getElementById('lungCapacity').value,  // 肺活量
+                standing_long_jump: document.getElementById('standingLongJump').value,  // 立定跳远
+                sit_and_reach: document.getElementById('sitAndReach').value,  // 坐位体前屈
+                push_up: document.getElementById('kneePushUps').value,  // 跪姿俯卧撑
+                plank: document.getElementById('plankTime').value,  // 极限平板支撑
+                // 备注
+                notes: `身高: ${document.getElementById('height').value}cm, 体重: ${document.getElementById('weight').value}kg`
+            };
+
+            console.log('提交体测数据到后端：', testData);
+
+            // 调用本地服务器 API
+            fetch(API_BASE_URL + '/api/submit-test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(testData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('后端返回：', data);
+                
+                // 隐藏提交动画
+                document.getElementById('submitProcessing').style.display = 'none';
+                
+                if (data.success) {
+                    // 显示成功提示
+                    document.getElementById('successMessage').style.display = 'block';
+                } else {
+                    // 显示错误
+                    alert('提交失败：' + (data.message || '未知错误'));
+                    document.getElementById('testForm').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('提交失败：', error);
+                
+                // 隐藏提交动画
+                document.getElementById('submitProcessing').style.display = 'none';
+                
+                // 显示错误
+                alert('提交失败，请确保本地服务器已启动（localhost:8082）');
+                document.getElementById('testForm').style.display = 'block';
+            });
+        }
+
+        // 拖拽上传功能
+        ['footArchUpload', 'postureUpload', 'bodyCompUpload'].forEach(id => {
+            const element = document.getElementById(id);
+            
+            element.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                element.classList.add('dragover');
+            });
+
+            element.addEventListener('dragleave', () => {
+                element.classList.remove('dragover');
+            });
+
+            element.addEventListener('drop', (e) => {
+                e.preventDefault();
+                element.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const inputId = id.replace('Upload', 'Video');
+                    const input = document.getElementById(inputId);
+                    
+                    // 创建 DataTransfer 对象并设置文件
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[0]);
+                    input.files = dataTransfer.files;
+                    
+                    // 触发 onchange 事件
+                    input.onchange();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
