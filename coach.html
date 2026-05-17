@@ -422,22 +422,11 @@
     </div>
 
     <script>
-        // 模拟数据（实际应该从飞书 API 读取）
-        let allStudents = [
-            {
-                record_id: "rec27pD8Ds3HlL",
-                id: "20260517-001",
-                name: "苏测试",
-                gender: "男",
-                age: 7,
-                phone: "13144121962",
-                date: "2026-05-17",
-                time: "下午",
-                location: "人民街道党群服务中心",
-                tested: false
-            }
-        ];
-
+        // 后端API地址
+        const API_BASE = 'https://linlian-coach-production.up.railway.app';
+        
+        // 学生数据（从API加载）
+        let allStudents = [];
         let currentFilter = '全部';
 
         // 页面加载时初始化
@@ -445,18 +434,39 @@
             loadStudents();
         });
 
-        // 加载学生数据
-        function loadStudents() {
+        // 加载学生数据（从后端API）
+        async function loadStudents() {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('studentList').innerHTML = '';
             document.getElementById('emptyState').style.display = 'none';
 
-            // 模拟 API 延迟
-            setTimeout(() => {
-                renderStudents();
-                updateStats();
-                document.getElementById('loading').style.display = 'none';
-            }, 500);
+            try {
+                const response = await fetch(`${API_BASE}/api/students`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    // 转换API数据格式
+                    allStudents = result.data.map(item => ({
+                        record_id: item.record_id,
+                        id: item.booking_no || '未编号',
+                        name: item.name,
+                        gender: item.gender,
+                        age: parseInt(item.age) || 0,
+                        phone: item.phone,
+                        date: item.appointment_date || '',
+                        time: item.appointment_time || '',
+                        location: item.location || '未知',
+                        tested: item.status === '已完成测试'
+                    }));
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                allStudents = [];
+            }
+
+            renderStudents();
+            updateStats();
+            document.getElementById('loading').style.display = 'none';
         }
 
         // 渲染学生列表

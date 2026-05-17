@@ -31,6 +31,7 @@ FEISHU_CONFIG = {
     'app_secret': os.environ.get('FEISHU_APP_SECRET', 'M6Nb3vLmsUPRkFD4xEoO8d18JZTa1N3k'),
     'base_token': os.environ.get('FEISHU_BASE_TOKEN', 'UTJobXJT1a85lDspZfecgPDXnCc'),
     'table_id': os.environ.get('FEISHU_TABLE_ID', 'tblPyAhmraamWM1u'),
+    'booking_table_id': os.environ.get('FEISHU_BOOKING_TABLE_ID', 'tblwfDdLgSV1WyzR'),
     'test_table_id': os.environ.get('FEISHU_TEST_TABLE_ID', 'tblyY6kyPk3b62iL'),
 }
 
@@ -128,6 +129,68 @@ def get_mock_students():
         {"record_id": "rec002", "name": "李小红", "gender": "女", "age": 7, "phone": "139****5678", "location": "人民街道党群", "booking_no": "20260517-002", "status": "已到店"},
         {"record_id": "rec003", "name": "王小强", "gender": "男", "age": 9, "phone": "137****9012", "location": "人民街道党群", "booking_no": "20260517-003", "status": "已完成"}
     ]
+
+# 提交预约
+def submit_booking(booking_data):
+    """提交预约信息到飞书"""
+    token = get_feishu_token()
+    if not token:
+        print("⚠️  无法获取 token，模拟提交")
+        print("📋 收到预约数据：")
+        print(json.dumps(booking_data, ensure_ascii=False, indent=2))
+        return {"success": True, "record_id": "mock_" + str(datetime.now().timestamp())}
+    
+    # 构建飞书记录数据
+    fields = {
+        '孩子姓名': booking_data.get('child_name'),
+        '性别': [booking_data.get('gender')],
+        '年龄': booking_data.get('age'),
+        '身高(cm)': booking_data.get('height'),
+        '体重(kg)': booking_data.get('weight'),
+        '家长姓名': booking_data.get('parent_name'),
+        '联系电话': booking_data.get('phone'),
+        '微信号': booking_data.get('wechat', ''),
+        '预约日期': booking_data.get('appointment_date'),
+        '预约时段': booking_data.get('appointment_time'),
+        '预约地点': booking_data.get('location'),
+        '备注信息': booking_data.get('remarks', ''),
+        '提交时间': booking_data.get('submit_time', datetime.now().isoformat()),
+        '状态': '已预约'
+    }
+    
+    # 提交到飞书
+    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['base_token']}/tables/{FEISHU_CONFIG['booking_table_id']}/records"
+    
+    payload = {
+        "fields": fields
+    }
+    
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode('utf-8'),
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+    )
+    
+    try:
+        response = urllib.request.urlopen(req)
+        result = json.loads(response.read().decode('utf-8'))
+        
+        if result.get('code') == 0:
+            new_record_id = result['data']['record']['record_id']
+            print(f"✅ 预约已成功提交到飞书")
+            print(f"   新记录ID: {new_record_id}")
+            return {"success": True, "record_id": new_record_id}
+        else:
+            print(f"❌ 预约提交失败: {result.get('msg')}")
+            return {"success": False, "message": result.get('msg')}
+    except Exception as e:
+        print(f"❌ 预约提交失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "message": str(e)}
 
 # 获取体测数据
 def get_test_data(record_id):
@@ -602,6 +665,24 @@ class Handler(BaseHTTPRequestHandler):
                 print(f"❌ 视频分析失败: {e}")
                 traceback.print_exc()
                 self.send_json({"success": False, "error": str(e)})
+        
+        elif path == "/api/submit-booking":
+            # 预约提交端点
+            try:
+                length = int(self.headers["Content-Length"])
+                data = json.loads(self.rfile.read(length))
+                
+                result = submit_booking(data)
+                
+                if result.get('success'):
+                    self.send_json({"success": True, "record_id": result.get('record_id')})
+                else:
+                    self.send_json({"success": False, "message": result.get('message', '提交失败')})
+            except Exception as e:
+                import traceback
+                print(f"❌ 预约提交失败: {e}")
+                traceback.print_exc()
+                self.send_json({"success": False, "message": str(e)})
         
         else:
             self.send_error(404)
