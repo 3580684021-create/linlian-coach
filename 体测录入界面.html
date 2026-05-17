@@ -543,8 +543,8 @@
 
                         <div class="processing" id="footArchProcessing">
                             <div class="processing-spinner"></div>
-                            <div class="processing-text">AI正在识别足弓...</div>
-                            <div class="processing-subtext">请稍候，预计需要10-15秒</div>
+                            <div class="processing-text">正在处理视频...</div>
+                            <div class="processing-subtext">浏览器提取关键帧后发送给AI分析</div>
                         </div>
 
                         <div class="ai-result" id="footArchResult">
@@ -596,8 +596,8 @@
 
                         <div class="processing" id="postureProcessing">
                             <div class="processing-spinner"></div>
-                            <div class="processing-text">AI正在识别体态...</div>
-                            <div class="processing-subtext">正在分析头颈、肩部、骨盆等8项指标</div>
+                            <div class="processing-text">正在处理视频...</div>
+                            <div class="processing-subtext">浏览器提取关键帧后发送给AI分析</div>
                         </div>
 
                         <div class="ai-result" id="postureResult">
@@ -657,8 +657,8 @@
 
                         <div class="processing" id="bodyCompProcessing">
                             <div class="processing-spinner"></div>
-                            <div class="processing-text">AI正在分析体成分...</div>
-                            <div class="processing-subtext">正在计算BMI、体脂率、肌肉量等指标</div>
+                            <div class="processing-text">正在处理视频...</div>
+                            <div class="processing-subtext">浏览器提取关键帧后发送给AI分析</div>
                         </div>
 
                         <div class="ai-result" id="bodyCompResult">
@@ -792,7 +792,7 @@
             return canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
         }
 
-        // 开始AI识别（视频方式 - 上传完整视频到后端处理）
+        // 开始AI识别（视频方式 - 浏览器提取帧后上传图片）
         async function startRecognition(type) {
             // 获取视频文件
             const videoInput = document.getElementById(type + 'Video');
@@ -807,30 +807,59 @@
 
             try {
                 const file = videoInput.files[0];
-                console.log(`📹 开始上传视频: ${file.name}, 大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+                console.log(`📹 处理视频: ${file.name}, 大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
 
-                // 读取文件为base64
-                const reader = new FileReader();
-                const videoData = await new Promise((resolve, reject) => {
-                    reader.onload = () => resolve(reader.result.split(',')[1]);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
+                // 读取视频并提取帧
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.muted = true;
+                video.crossOrigin = 'anonymous';
+
+                await new Promise((resolve, reject) => {
+                    video.onloadedmetadata = resolve;
+                    video.onerror = () => reject(new Error('视频加载失败'));
                 });
 
-                // 调用后端视频分析API
-                console.log('🚀 发送视频到后端进行AI分析...');
-                const response = await fetch(API_BASE_URL + '/api/analyze-video', {
+                // 等待视频准备好
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // 跳到视频中间位置截图
+                video.currentTime = video.duration / 2;
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                // 用canvas提取帧
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // 设置合适的截图尺寸（最大1280px宽度）
+                const maxWidth = 1280;
+                const scale = Math.min(1, maxWidth / video.videoWidth);
+                canvas.width = video.videoWidth * scale;
+                canvas.height = video.videoHeight * scale;
+
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // 转为base64图片
+                const frameData = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                console.log(`🖼️ 提取帧成功: ${(frameData.length / 1024).toFixed(1)} KB`);
+
+                // 清理
+                URL.revokeObjectURL(video.src);
+
+                // 调用后端图片分析API
+                console.log('🚀 发送图片到后端进行AI分析...');
+                const response = await fetch(API_BASE_URL + '/api/analyze-image', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        video_data: videoData,
+                        image_data: frameData,
                         analysis_type: type === 'footArch' ? 'foot_arch' :
                                       type === 'posture' ? 'posture' :
                                       'body_comp'
                     })
-                }, 300000); // 5分钟超时
+                });
 
                 const data = await response.json();
                 console.log('✅ AI识别结果：', data);
@@ -852,7 +881,7 @@
                 console.error('❌ AI识别失败：', error);
                 document.getElementById(type + 'Processing').style.display = 'none';
                 document.getElementById(type + 'Preview').style.display = 'block';
-                alert('AI识别失败，请确保网络连接正常，或尝试使用更短的视频（5-10秒，文件小于10MB）');
+                alert('视频处理失败，请尝试重新上传或使用更短的视频（5-10秒）');
             }
         }
 
