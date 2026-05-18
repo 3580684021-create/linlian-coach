@@ -176,6 +176,12 @@ def submit_booking(booking_data):
         "fields": fields
     }
     
+    print(f"DEBUG submit_booking | booking_table={FEISHU_CONFIG['booking_table_id']}")
+    print(f"DEBUG fields keys: {list(fields.keys())}")
+    print(f"DEBUG 性别 value: {repr(fields.get('性别'))}")
+    print(f"DEBUG 预约日期 value: {repr(fields.get('预约日期'))}")
+    print(f"DEBUG payload: {json.dumps(payload, ensure_ascii=False)[:300]}")
+    
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode('utf-8'),
@@ -191,10 +197,10 @@ def submit_booking(booking_data):
         
         if result.get('code') == 0:
             new_record_id = result['data']['record']['record_id']
-            print(f"✅ 预约已成功提交到飞书")
-            print(f"   新记录ID: {new_record_id}")
+            print(f"DEBUG submit SUCCESS: {new_record_id}")
             return {"success": True, "record_id": new_record_id}
         else:
+            print(f"DEBUG Feishu ERROR: code={result.get('code')} msg={result.get('msg')}")
             print(f"❌ 预约提交失败: {result.get('msg')}")
             return {"success": False, "message": result.get('msg')}
     except Exception as e:
