@@ -1017,10 +1017,23 @@
             </div>
 
             <!-- 成功提示 -->
-            <div id="successMessage">
+            <div id="successMessage" style="display: none;">
                 <div style="font-size: 64px; margin-bottom: 20px;">&#9989;</div>
                 <div style="font-size: 24px; font-weight: 700; color: var(--brand-green); margin-bottom: 12px;">提交成功！</div>
-                <div style="font-size: 16px; color: var(--text-gray); margin-bottom: 30px;">体测数据已成功录入，正在生成报告...</div>
+                <div style="font-size: 16px; color: var(--text-gray); margin-bottom: 30px;" id="successDesc">体测数据已成功录入</div>
+
+                <!-- 下载报告按钮（提交成功后显示） -->
+                <div id="reportSection" style="display: none; margin-bottom: 30px;">
+                    <div style="background: var(--brand-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div style="font-size: 16px; font-weight: 600; color: var(--brand-dark); margin-bottom: 12px;">
+                            &#128196; AI体测报告已生成
+                        </div>
+                        <a href="#" id="downloadReportBtn" class="submit-btn" style="display: inline-block; text-decoration: none; width: auto; padding: 12px 30px;" target="_blank">
+                            &#11015; 下载PDF报告
+                        </a>
+                    </div>
+                </div>
+
                 <a href="教练端管理界面.html" class="back-btn">返回学生列表</a>
             </div>
         </div>
@@ -1586,6 +1599,23 @@
                 document.getElementById('submitProcessing').style.display = 'none';
                 if (data.success) {
                     document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('successDesc').textContent = data.message || '体测数据已成功录入';
+
+                    // 如果返回了报告链接，显示下载按钮
+                    if (data.report_url) {
+                        const reportSection = document.getElementById('reportSection');
+                        const downloadBtn = document.getElementById('downloadReportBtn');
+
+                        // 处理相对路径和绝对路径
+                        let reportUrl = data.report_url;
+                        if (!reportUrl.startsWith('http')) {
+                            // 如果是相对路径，加上API_BASE
+                            reportUrl = API_BASE_URL + reportUrl;
+                        }
+
+                        downloadBtn.href = reportUrl;
+                        reportSection.style.display = 'block';
+                    }
                 } else {
                     alert('提交失败：' + (data.message || '未知错误'));
                     document.getElementById('testForm').style.display = 'block';

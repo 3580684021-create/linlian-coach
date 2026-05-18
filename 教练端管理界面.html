@@ -484,7 +484,7 @@
         <div class="header-content">
             <div class="header-left">
                 <div class="logo-icon">
-                    <img src="../../logo/logo.png" alt="邻练体育">
+                    <img src="./images/logo.png" alt="邻练体育">
                 </div>
                 <div>
                     <div class="header-title">邻练体育 · 教练端</div>
@@ -584,10 +584,8 @@
     </div>
 
     <script>
-        // API配置
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:8082'
-            : 'http://116.62.11.107:8082';
+        // API配置 - Nginx反向代理模式，使用相对路径
+        const API_BASE = '';
 
         let allStudents = [];
         let currentLocation = '全部';
