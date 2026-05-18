@@ -2,151 +2,615 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>邻练体育 - 体测预约</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邻练体育 - 专业体测预约</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 40px 20px 60px;
+            text-align: center;
+            color: white;
+            position: relative;
             overflow: hidden;
         }
 
-        /* 顶部区域 */
-        .header {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            padding: 40px 30px;
-            text-align: center;
-            color: white;
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
+            width: 90px;
+            height: 90px;
             margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
 
         .logo img {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            border-radius: 50%;
+            background: white;
+            padding: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
 
         .header h1 {
             font-size: 28px;
-            margin-bottom: 10px;
             font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
         }
 
         .header p {
             font-size: 16px;
             opacity: 0.95;
-            line-height: 1.6;
+            position: relative;
+            z-index: 1;
         }
 
-        /* 内容区域 */
-        .content {
-            padding: 40px 30px;
+        .container {
+            max-width: 600px;
+            margin: -40px auto 0;
+            padding: 0 15px 120px;
+            position: relative;
+            z-index: 1;
         }
 
-        /* 四大服务 - 合并为1个 */
-        .service-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 16px;
+        .card {
+            background: white;
+            border-radius: 20px;
             padding: 25px;
-            margin-bottom: 25px;
-            border: 2px solid #11998e;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .service-card h3 {
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 18px;
             color: #11998e;
-            font-size: 18px;
-            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .service-tags {
-            display: flex;
-            flex-wrap: wrap;
             gap: 10px;
         }
 
-        .service-tag {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
-        /* 社区体育健康服务 */
-        .service-section {
-            background: #fff;
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        .feature-item {
+            background: linear-gradient(135deg, #f0f9f8 0%, #e8f5e9 100%);
+            padding: 12px 8px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
         }
 
-        .service-section h3 {
-            color: #333;
-            font-size: 18px;
-            margin-bottom: 20px;
+        .feature-item:hover {
+            transform: scale(1.05);
+        }
+
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .feature-item h3 {
+            font-size: 13px;
+            color: #11998e;
+            margin-bottom: 3px;
+        }
+
+        .feature-item p {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            font-size: 15px;
         }
 
-        .service-list {
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+
+        .info-list li::before {
+            content: '✅';
+            font-size: 20px;
+        }
+
+        .steps {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
 
-        .service-item {
+        .step {
             display: flex;
             align-items: center;
+            gap: 15px;
             padding: 15px;
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             border-radius: 12px;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
-        .service-item:hover {
+        .step:hover {
             transform: translateX(5px);
-            background: #e8f5e9;
         }
 
-        .service-icon {
+        .step-num {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .cta-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 15px;
+            background: white;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        }
+
+        .cta-button {
+            width: 100%;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(17,153,142,0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 4px 10px rgba(17,153,142,0.4);
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 40px 0;
+            animation: slideUp 0.4s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 25px;
+            color: white;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .modal-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .modal-body {
+            padding: 25px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 45px;
+        }
+
+        .birthday-picker {
+            display: flex;
+            gap: 10px;
+        }
+
+        .birthday-picker .form-select {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+            cursor: pointer;
+        }
+
+        .birthday-picker .form-select.error {
+            border-color: #e53935;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #11998e;
+            box-shadow: 0 0 0 4px rgba(17,153,142,0.1);
+        }
+
+        .form-input.error,
+        .form-select.error {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 4px rgba(231,76,60,0.1);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            padding-left: 5px;
+        }
+
+        .error-message.active {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .form-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(17,153,142,0.4);
+            transition: all 0.3s;
+        }
+
+        .form-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-submit:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(17,153,142,0.5);
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 50px 30px;
+        }
+
+        .success-message.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .success-message h3 {
+            font-size: 24px;
+            color: #11998e;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* 可搜索下拉框 */
+        .searchable-select {
+            position: relative;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #11998e;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1001;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .dropdown.active {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+
+        .dropdown-item {
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #f0f9f8;
+        }
+
+        /* 社区体育健康服务 */
+        .service-cards {
+            margin-top: 15px;
+        }
+
+        .service-card-item {
+            background: linear-gradient(135deg, #f0f9f8 0%, #e8f5e9 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .service-card-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .service-card-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(17,153,142,0.15);
+        }
+
+        .service-num {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .service-card-text h3 {
+            font-size: 16px;
+            color: #11998e;
+            margin-bottom: 8px;
+        }
+
+        .service-card-text p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .service-card-text ul {
+            margin-top: 8px;
+            padding-left: 20px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .service-card-text ul li {
+            margin-bottom: 3px;
+        }
+
+        .service-detail {
+            margin-top: 20px;
+        }
+
+        .service-detail-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .service-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-icon-box {
             width: 50px;
             height: 50px;
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
@@ -155,280 +619,735 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            margin-right: 15px;
             flex-shrink: 0;
         }
 
-        .service-text h4 {
-            color: #333;
-            font-size: 16px;
-            margin-bottom: 4px;
+        .service-text h3 {
+            font-size: 15px;
+            color: #11998e;
+            margin-bottom: 5px;
         }
 
         .service-text p {
-            color: #666;
             font-size: 13px;
-            line-height: 1.4;
-        }
-
-        /* 说明区域 */
-        .info-section {
-            background: #e8f5e9;
-            border-left: 4px solid #11998e;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-
-        .info-section h3 {
-            color: #11998e;
-            font-size: 16px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-section p {
-            color: #555;
-            font-size: 14px;
-            line-height: 1.8;
-        }
-
-        /* 预约流程 */
-        .steps {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-        }
-
-        .steps h3 {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .step {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-        }
-
-        .step:last-child {
-            margin-bottom: 0;
-        }
-
-        .step-number {
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-            margin-right: 12px;
-            flex-shrink: 0;
-        }
-
-        .step-content {
-            flex: 1;
-        }
-
-        .step-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 3px;
-        }
-
-        .step-desc {
-            font-size: 12px;
             color: #666;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        /* 预约按钮 */
-        .cta-button {
-            display: block;
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(17, 153, 142, 0.3);
-            text-decoration: none;
+        .service-tag {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #11998e;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
             text-align: center;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(17, 153, 142, 0.4);
-        }
-
-        .cta-button:active {
-            transform: translateY(0);
-        }
-
-        /* 页脚 */
-        .footer {
-            text-align: center;
-            padding: 20px 30px 30px;
+            padding: 30px 20px;
             color: #999;
             font-size: 13px;
+            background: white;
+            margin: 20px 15px;
+            border-radius: 15px;
         }
 
-        .footer a {
-            color: #11998e;
-            text-decoration: none;
-            font-weight: 600;
+        .footer p {
+            margin-bottom: 5px;
         }
 
-        /* 响应式 */
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
             .header {
-                padding: 30px 20px;
+                padding: 30px 15px 50px;
             }
             
-            .content {
-                padding: 30px 20px;
+            .header h1 {
+                font-size: 24px;
             }
-
-            .service-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 20px;
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <img src="logo.png" alt="邻练体育">
+        </div>
+        <h1>邻练体育</h1>
+        <p>专业体测 · 社区体育托管</p>
+    </div>
+
+    <!-- Main Content -->
     <div class="container">
-        <!-- 顶部 -->
-        <div class="header">
-            <div class="logo">
-                <img src="/logo/logo.png" alt="邻练体育" onerror="this.parentElement.innerHTML='🏃'">
+        <!-- 服务介绍 -->
+        <div class="card">
+            <h2>🎯 专业体测服务</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">🦶</span>
+                    <h3>足弓评估</h3>
+                    <p>专业设备检测足部健康</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🧍</span>
+                    <h3>体态评估</h3>
+                    <p>8项指标全面分析</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">💪</span>
+                    <h3>体成分分析</h3>
+                    <p>肌肉脂肪精准测量</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <h3>专业报告</h3>
+                    <p>AI生成解读建议</p>
+                </div>
             </div>
-            <h1>邻练体育</h1>
-            <p>邻练课后健康 · 社区体育托管</p>
         </div>
 
-        <div class="content">
-            <!-- 专业体测服务 - 合并为一个卡片 -->
-            <div class="service-card">
-                <h3>🏆 专业体测服务</h3>
-                <div class="service-tags">
-                    <span class="service-tag">📊 体态评估</span>
-                    <span class="service-tag">🦶 足弓分析</span>
-                    <span class="service-tag">💪 身体素质测试</span>
-                    <span class="service-tag">📋 运动方案</span>
-                </div>
-            </div>
-
-            <!-- 社区体育健康服务 -->
-            <div class="service-section">
-                <h3>🏠 社区体育健康服务</h3>
-                <div class="service-list">
-                    <div class="service-item">
-                        <div class="service-icon">🏡</div>
-                        <div class="service-text">
-                            <h4>体育托管</h4>
-                            <p>课后安全托管，专业陪练，孩子开心家长放心</p>
-                        </div>
-                    </div>
-                    <div class="service-item">
-                        <div class="service-icon">👥</div>
-                        <div class="service-text">
-                            <h4>体育团课</h4>
-                            <p>小班精品教学，互动有趣，伙伴一起更积极</p>
-                        </div>
-                    </div>
-                    <div class="service-item">
-                        <div class="service-icon">🎯</div>
-                        <div class="service-text">
-                            <h4>定制上门私教</h4>
-                            <p>一对一专属服务，个性化训练计划送上门</p>
-                        </div>
+        <!-- 服务详情介绍 -->
+        <div class="card">
+            <h2>📝 服务详情介绍</h2>
+            <div class="service-detail">
+                <div class="service-detail-item">
+                    <div class="service-icon-box">🦶</div>
+                    <div class="service-text">
+                        <h3>足弓评估</h3>
+                        <p>使用专业足压检测设备，分析足部受力分布、足弓形态，评估扁平足、高足弓等异常情况，提供个性化矫正建议。</p>
+                        <span class="service-tag">专业设备</span>
+                        <span class="service-tag">科学评估</span>
                     </div>
                 </div>
+                <div class="service-detail-item">
+                    <div class="service-icon-box">🧍</div>
+                    <div class="service-text">
+                        <h3>体态评估</h3>
+                        <p>通过AI视觉分析技术，检测头部前伸、圆肩、驼背、骨盆前倾等8项体态指标，生成专业评估报告。</p>
+                        <span class="service-tag">8项指标</span>
+                        <span class="service-tag">AI分析</span>
+                    </div>
+                </div>
+                <div class="service-detail-item">
+                    <div class="service-icon-box">💪</div>
+                    <div class="service-text">
+                        <h3>体成分分析</h3>
+                        <p>使用专业设备，全面测量肌肉量、体脂肪率、基础代谢率等指标，全面了解孩子身体发育状况。</p>
+                        <span class="service-tag">全面测量</span>
+                        <span class="service-tag">精准数据</span>
+                    </div>
+                </div>
+                <div class="service-detail-item">
+                    <div class="service-icon-box">📊</div>
+                    <div class="service-text">
+                        <h3>专业报告解读</h3>
+                        <p>AI自动生成体测报告，包含数据解读、风险评估、运动建议三大板块，家长轻松看懂专业数据。</p>
+                        <span class="service-tag">AI生成</span>
+                        <span class="service-tag">PDF报告</span>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <!-- 体测说明 -->
-            <div class="info-section">
-                <h3>📝 关于体测</h3>
-                <p>我们为您的孩子提供专业的体测服务，通过科学的数据分析，了解孩子的生长发育状况，制定个性化的运动方案，助力健康成长。</p>
+        <!-- 社区体育健康服务 -->
+        <div class="card">
+            <h2>🏃 开设社区体育健康服务</h2>
+            <div class="service-cards">
+                <div class="service-card-item">
+                    <div class="service-num">1</div>
+                    <div class="service-card-text">
+                        <h3>体育托管班</h3>
+                        <p>为社区青少年提供专业体育托管服务，解决家长后顾之忧。</p>
+                        <ul>
+                            <li>专业教练团队，持证上岗</li>
+                            <li>科学训练计划，因材施教</li>
+                            <li>社区嵌入式服务，离家近</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="service-card-item">
+                    <div class="service-num">2</div>
+                    <div class="service-card-text">
+                        <h3>体育团课</h3>
+                        <p>小班制团体课程，培养团队合作与社交能力。</p>
+                        <ul>
+                            <li>4-8人小班教学，关注度更高</li>
+                            <li>趣味训练，激发运动兴趣</li>
+                            <li>定期测评，进步可视化</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="service-card-item">
+                    <div class="service-num">3</div>
+                    <div class="service-card-text">
+                        <h3>定制上门私教</h3>
+                        <p>一对一专属教练，上门服务，省时省心。</p>
+                        <ul>
+                            <li>个性化训练方案定制</li>
+                            <li>灵活预约时间，上门服务</li>
+                            <li>专注度更高，效果更显著</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <!-- 预约流程 -->
+        <!-- 预约流程 -->
+        <div class="card">
+            <h2>📋 预约流程</h2>
             <div class="steps">
-                <h3>🚀 预约流程</h3>
                 <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <div class="step-title">点击预约按钮</div>
-                        <div class="step-desc">进入在线预约表单</div>
-                    </div>
+                    <div class="step-num">1</div>
+                    <div class="step-text">点击下方"立即预约"按钮</div>
                 </div>
                 <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <div class="step-title">填写基本信息</div>
-                        <div class="step-desc">孩子姓名、年龄、联系方式等</div>
-                    </div>
+                    <div class="step-num">2</div>
+                    <div class="step-text">填写预约信息（姓名、联系方式等）</div>
                 </div>
                 <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <div class="step-title">提交预约</div>
-                        <div class="step-desc">教练将在24小时内联系您确认</div>
-                    </div>
+                    <div class="step-num">3</div>
+                    <div class="step-text">提交后教练将在24小时内联系您</div>
                 </div>
             </div>
-
-            <!-- 预约按钮 -->
-            <a href="/booking-direct.html" class="cta-button">
-                立即预约体测 📅
-            </a>
         </div>
 
-        <!-- 页脚 -->
+        <!-- 注意事项 -->
+        <div class="card">
+            <h2>⚠️ 注意事项</h2>
+            <ul class="info-list">
+                <li>请提前10分钟到达体测地点</li>
+                <li>体测时长约30-45分钟</li>
+                <li>建议穿着运动服装</li>
+                <li>如有特殊疾病史请提前告知</li>
+            </ul>
+        </div>
+
         <div class="footer">
             <p>© 2026 邻练体育 | 社区青少年体育托管专家</p>
             <p>客服微信：linlian_sports</p>
+            <p style="margin-top: 10px; font-size: 11px; color: #bbb;">
+                邻练体育拥有最终解释权
+            </p>
+        </div>
+    </div>
+
+    <!-- CTA按钮 -->
+    <div class="cta-section">
+        <button class="cta-button" onclick="openModal()">
+            立即预约体测 📅
+        </button>
+    </div>
+
+    <!-- 预约模态框 -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📅 预约体测</h2>
+                <p>请填写以下信息，教练将在24小时内联系您</p>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="bookingForm" onsubmit="return submitForm(event)">
+                    <div class="form-group">
+                        <label class="form-label">孩子姓名<span class="required">*</span></label>
+                        <input type="text" class="form-input" id="childName" placeholder="请输入孩子姓名" required>
+                        <div class="error-message" id="childNameError">请输入孩子姓名</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">孩子性别<span class="required">*</span></label>
+                        <select class="form-select" id="childGender" required>
+                            <option value="">请选择性别</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                        <div class="error-message" id="childGenderError">请选择孩子性别</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">孩子出生日期<span class="required">*</span></label>
+                        <div class="birthday-picker">
+                            <select class="form-select" id="childBirthYear" required>
+                                <option value="">年</option>
+                            </select>
+                            <select class="form-select" id="childBirthMonth" required>
+                                <option value="">月</option>
+                            </select>
+                            <select class="form-select" id="childBirthDay" required>
+                                <option value="">日</option>
+                            </select>
+                        </div>
+                        <div class="error-message" id="childBirthdayError">请选择完整出生日期</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">监护人姓名<span class="required">*</span></label>
+                        <input type="text" class="form-input" id="guardianName" placeholder="请输入监护人姓名" required>
+                        <div class="error-message" id="guardianNameError">请输入监护人姓名</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">监护人微信号<span class="required">*</span></label>
+                        <input type="text" class="form-input" id="guardianWechat" placeholder="请输入微信号" required>
+                        <div class="error-message" id="guardianWechatError">请输入微信号（至少6位）</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">预约地点<span class="required">*</span></label>
+                        <div class="searchable-select">
+                            <input type="text" class="form-input" id="bookingLocation" placeholder="搜索或选择预约地点" required autocomplete="off">
+                            <div class="dropdown" id="locationDropdown"></div>
+                        </div>
+                        <div class="error-message" id="bookingLocationError">请选择预约地点</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">预约日期<span class="required">*</span></label>
+                        <input type="date" class="form-input" id="bookingDate" required>
+                        <div class="error-message" id="bookingDateError">请选择预约日期（只能预约今天起3个月内的日期）</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">孩子其他情况<span style="color: #999; font-size: 12px; font-weight: normal;">（选填）</span></label>
+                        <textarea class="form-input" id="childOtherInfo" rows="3" placeholder="如有特殊情况请在此说明（如：运动损伤史、疾病史等）"></textarea>
+                    </div>
+
+                    <button type="submit" class="form-submit" id="submitBtn">
+                        提交预约
+                    </button>
+                </form>
+
+                <div class="success-message" id="successMessage">
+                    <div class="success-icon">✅</div>
+                    <h3>预约成功！</h3>
+                    <p>教练将在24小时内联系您<br>请保持微信畅通</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // 页面加载动画
+        // 地点列表
+        const locations = [
+            '大德中社区家在开放体测中',
+            '人民街道党群服务中心',
+            '北京街道社区体育中心',
+            '光塔街道文化活动中心',
+            '六榕街道社区健身中心'
+        ];
+
+        // 全局函数：打开模态框
+        function openModal() {
+            console.log('openModal called');
+            var modal = document.getElementById('bookingModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+                // 重置表单
+                var form = document.getElementById('bookingForm');
+                if (form) {
+                    form.reset();
+                    form.style.display = 'block';
+                    // 重置年月日选择器
+                    var daySelect = document.getElementById('childBirthDay');
+                    if (daySelect) daySelect.innerHTML = '<option value="">日</option>';
+                }
+                var successMsg = document.getElementById('successMessage');
+                if (successMsg) {
+                    successMsg.classList.remove('active');
+                }
+                
+                // 清除错误提示
+                var errors = document.querySelectorAll('.error-message');
+                for (var i = 0; i < errors.length; i++) {
+                    errors[i].classList.remove('active');
+                }
+                var inputs = document.querySelectorAll('.form-input, .form-select');
+                for (var j = 0; j < inputs.length; j++) {
+                    inputs[j].classList.remove('error');
+                }
+            }
+        }
+
+        // 全局函数：关闭模态框
+        function closeModal() {
+            var modal = document.getElementById('bookingModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelector('.container').style.opacity = '0';
-            document.querySelector('.container').style.transform = 'translateY(20px)';
+            console.log('DOM loaded');
             
-            setTimeout(() => {
-                document.querySelector('.container').style.transition = 'all 0.6s ease';
-                document.querySelector('.container').style.opacity = '1';
-                document.querySelector('.container').style.transform = 'translateY(0)';
-            }, 100);
+            // 初始化日期限制
+            var dateInput = document.getElementById('bookingDate');
+            if (dateInput) {
+                var today = new Date();
+                var maxDate = new Date();
+                maxDate.setMonth(maxDate.getMonth() + 3);
+
+                var todayStr = today.toISOString().split('T')[0];
+                var maxDateStr = maxDate.toISOString().split('T')[0];
+
+                dateInput.min = todayStr;
+                dateInput.max = maxDateStr;
+                console.log('Date limit set:', todayStr, 'to', maxDateStr);
+            }
+
+            // 初始化出生日期年月日选择器
+            initBirthdayPicker();
+
+            // 初始化地点搜索
+            initLocationSelect();
+            
+            // 点击模态框背景关闭
+            var modal = document.getElementById('bookingModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal();
+                    }
+                });
+            }
+            
+            console.log('Init complete');
         });
 
-        // 按钮点击效果
-        document.querySelector('.cta-button').addEventListener('click', function(e) {
-            console.log('家长点击预约按钮');
-        });
+        // 出生日期年月日选择器
+        function initBirthdayPicker() {
+            var yearSelect = document.getElementById('childBirthYear');
+            var monthSelect = document.getElementById('childBirthMonth');
+            var daySelect = document.getElementById('childBirthDay');
+            if (!yearSelect || !monthSelect || !daySelect) return;
+
+            var currentYear = new Date().getFullYear();
+
+            // 填充年份（当前年份-16 到 当前年份-3，共14年）
+            for (var y = currentYear - 3; y >= currentYear - 16; y--) {
+                var opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y + '年';
+                yearSelect.appendChild(opt);
+            }
+
+            // 填充月份
+            for (var m = 1; m <= 12; m++) {
+                var opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m + '月';
+                monthSelect.appendChild(opt);
+            }
+
+            // 更新天数
+            function updateDays() {
+                var year = parseInt(yearSelect.value);
+                var month = parseInt(monthSelect.value);
+                daySelect.innerHTML = '<option value="">日</option>';
+
+                if (!year || !month) return;
+
+                var daysInMonth = new Date(year, month, 0).getDate();
+                for (var d = 1; d <= daysInMonth; d++) {
+                    var opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d + '日';
+                    daySelect.appendChild(opt);
+                }
+            }
+
+            // 更新天数 + 清除错误提示
+            yearSelect.addEventListener('change', function() {
+                updateDays();
+                clearError('childBirthday');
+            });
+            monthSelect.addEventListener('change', function() {
+                updateDays();
+                clearError('childBirthday');
+            });
+            daySelect.addEventListener('change', function() {
+                clearError('childBirthday');
+            });
+        }
+
+        // 地点搜索功能
+        function initLocationSelect() {
+            var input = document.getElementById('bookingLocation');
+            var dropdown = document.getElementById('locationDropdown');
+            
+            if (!input || !dropdown) return;
+            
+            input.addEventListener('input', function() {
+                var keyword = this.value.toLowerCase();
+                var filtered = locations.filter(function(loc) {
+                    return loc.toLowerCase().indexOf(keyword) !== -1;
+                });
+                showDropdown(filtered);
+            });
+            
+            input.addEventListener('focus', function() {
+                if (this.value === '') {
+                    showDropdown(locations);
+                }
+            });
+            
+            input.addEventListener('blur', function() {
+                setTimeout(function() {
+                    dropdown.classList.remove('active');
+                }, 200);
+            });
+        }
+
+        function showDropdown(items) {
+            var dropdown = document.getElementById('locationDropdown');
+            if (!dropdown) return;
+            
+            dropdown.innerHTML = '';
+            
+            if (items.length === 0) {
+                dropdown.classList.remove('active');
+                return;
+            }
+            
+            for (var i = 0; i < items.length; i++) {
+                var div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.textContent = items[i];
+                div.onmousedown = (function(item) {
+                    return function() {
+                        document.getElementById('bookingLocation').value = item;
+                        dropdown.classList.remove('active');
+                    };
+                })(items[i]);
+                dropdown.appendChild(div);
+            }
+            
+            dropdown.classList.add('active');
+        }
+
+        // 表单验证
+        function validateField(fieldId) {
+            var field = document.getElementById(fieldId);
+            if (!field) return false;
+            
+            var value = field.value.trim();
+            
+            switch(fieldId) {
+                case 'childName':
+                    if (!value) {
+                        showError(fieldId, '请输入孩子姓名');
+                        return false;
+                    }
+                    break;
+                
+                case 'childGender':
+                    if (!value) {
+                        showError(fieldId, '请选择孩子性别');
+                        return false;
+                    }
+                    break;
+                
+                case 'childBirthday':
+                    var year = document.getElementById('childBirthYear').value;
+                    var month = document.getElementById('childBirthMonth').value;
+                    var day = document.getElementById('childBirthDay').value;
+                    if (!year || !month || !day) {
+                        showError(fieldId, '请选择完整出生日期');
+                        return false;
+                    }
+                    break;
+                
+                case 'guardianName':
+                    if (!value) {
+                        showError(fieldId, '请输入监护人姓名');
+                        return false;
+                    }
+                    break;
+                
+                case 'guardianWechat':
+                    if (!value) {
+                        showError(fieldId, '请输入微信号');
+                        return false;
+                    }
+                    if (value.length < 6) {
+                        showError(fieldId, '微信号至少6位字符');
+                        return false;
+                    }
+                    break;
+                
+                case 'bookingLocation':
+                    if (!value) {
+                        showError(fieldId, '请选择预约地点');
+                        return false;
+                    }
+                    break;
+                
+                case 'bookingDate':
+                    if (!value) {
+                        showError(fieldId, '请选择预约日期');
+                        return false;
+                    }
+                    var selectedDate = new Date(value);
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    var maxDate = new Date();
+                    maxDate.setMonth(maxDate.getMonth() + 3);
+                    
+                    if (selectedDate < today) {
+                        showError(fieldId, '预约日期不能早于今天');
+                        return false;
+                    }
+                    if (selectedDate > maxDate) {
+                        showError(fieldId, '只能预约3个月内的日期');
+                        return false;
+                    }
+                    break;
+            }
+            
+            clearError(fieldId);
+            return true;
+        }
+
+        function showError(fieldId, message) {
+            var errorEl = document.getElementById(fieldId + 'Error');
+            var fieldEl = document.getElementById(fieldId);
+            
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.add('active');
+            }
+            if (fieldEl) {
+                fieldEl.classList.add('error');
+            }
+        }
+
+        function clearError(fieldId) {
+            var errorEl = document.getElementById(fieldId + 'Error');
+            var fieldEl = document.getElementById(fieldId);
+            
+            if (errorEl) {
+                errorEl.classList.remove('active');
+            }
+            if (fieldEl) {
+                fieldEl.classList.remove('error');
+            }
+        }
+
+        // 表单提交
+        function submitForm(event) {
+            event.preventDefault();
+            console.log('Form submitting');
+            
+            // 验证所有字段
+            var isValid = true;
+            var fields = ['childName', 'childGender', 'childBirthday', 'guardianName', 'guardianWechat', 'bookingLocation', 'bookingDate'];
+            
+            for (var i = 0; i < fields.length; i++) {
+                if (!validateField(fields[i])) {
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) {
+                console.log('Validation failed');
+                return false;
+            }
+            
+            // 收集数据
+            var year = document.getElementById('childBirthYear').value;
+            var month = document.getElementById('childBirthMonth').value;
+            var day = document.getElementById('childBirthDay').value;
+            var childBirthday = year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+
+            var data = {
+                childName: document.getElementById('childName').value.trim(),
+                childGender: document.getElementById('childGender').value,
+                childBirthday: childBirthday,
+                guardianName: document.getElementById('guardianName').value.trim(),
+                guardianWechat: document.getElementById('guardianWechat').value.trim(),
+                bookingLocation: document.getElementById('bookingLocation').value.trim(),
+                bookingDate: document.getElementById('bookingDate').value,
+                childOtherInfo: document.getElementById('childOtherInfo').value.trim()
+            };
+            
+            console.log('Submitting data:', data);
+            
+            // 禁用提交按钮
+            var submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '提交中...';
+            }
+            
+            // 发送到服务器
+            var apiUrl = 'http://116.62.11.107/api/booking';
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', apiUrl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            
+            xhr.onload = function() {
+                console.log('Response:', xhr.status, xhr.responseText);
+                
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '提交预约';
+                }
+                
+                if (xhr.status === 200) {
+                    try {
+                        var result = JSON.parse(xhr.responseText);
+                        
+                        if (result.success) {
+                            // 显示成功消息
+                            document.getElementById('bookingForm').style.display = 'none';
+                            document.getElementById('successMessage').classList.add('active');
+                            
+                            setTimeout(function() {
+                                closeModal();
+                            }, 3000);
+                        } else {
+                            alert(result.message || '提交失败，请重试');
+                        }
+                    } catch(e) {
+                        // 如果返回的不是JSON，也认为是成功
+                        document.getElementById('bookingForm').style.display = 'none';
+                        document.getElementById('successMessage').classList.add('active');
+                        
+                        setTimeout(function() {
+                            closeModal();
+                        }, 3000);
+                    }
+                } else {
+                    alert('提交失败，请重试（错误码：' + xhr.status + '）');
+                }
+            };
+            
+            xhr.onerror = function() {
+                console.log('Request failed');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '提交预约';
+                }
+                alert('网络错误，请检查网络连接');
+            };
+            
+            xhr.send(JSON.stringify(data));
+            
+            return false;
+        }
     </script>
 </body>
 </html>

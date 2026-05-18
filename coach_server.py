@@ -519,7 +519,7 @@ def analyze_frame_with_silicon_vl(frame_path, analysis_type="posture"):
 3. 数字+单位一起读出
 4. 不要猜测，看到什么读什么
 5. 如果某个位置确实没有数据，写"无"
-
+"""
     elif analysis_type == "posture":
         prompt = """这是一张体态评估测试设备的屏幕截图。请仔细识别屏幕上**所有的数字、角度、指标名称和结果**，不要遗漏任何数据。
 
@@ -548,7 +548,7 @@ def analyze_frame_with_silicon_vl(frame_path, analysis_type="posture"):
 3. 数字+单位一起读出（°、mm等）
 4. 不要猜测，看到什么读什么
 5. 如果某个位置确实没有数据，写"无"
-
+"""
     else:  # body_comp
         prompt = """这是一张人体成分分析仪的屏幕截图。截图上显示了很多蓝色/黑色的方块，每个方块代表一个体成分指标。请非常仔细地逐个读取屏幕上**所有可见的数字和文字**，不要遗漏任何一个。
 
@@ -589,6 +589,7 @@ def analyze_frame_with_silicon_vl(frame_path, analysis_type="posture"):
 4. 每个方块下面可能还有状态标签（如：偏瘦、标准、优、不足、偏高），也要读取
 5. 不要猜测数据，看到什么就读什么
 6. 如果某个位置确实没有数据，写"无"
+"""
     
     # 调用硅基流动API
     url = f"{SILICON_FLOW_CONFIG['base_url']}/chat/completions"
