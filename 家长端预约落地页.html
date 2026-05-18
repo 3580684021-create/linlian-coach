@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邻练体育 - 体测预约</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* 顶部区域 */
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        /* 内容区域 */
+        .content {
+            padding: 40px 30px;
+        }
+
+        /* 四大服务 - 合并为1个 */
+        .service-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #11998e;
+        }
+
+        .service-card h3 {
+            color: #11998e;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .service-tag {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 社区体育健康服务 */
+        .service-section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .service-section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .service-item:hover {
+            transform: translateX(5px);
+            background: #e8f5e9;
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .service-text h4 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .service-text p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        /* 说明区域 */
+        .info-section {
+            background: #e8f5e9;
+            border-left: 4px solid #11998e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .info-section h3 {
+            color: #11998e;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-section p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* 预约流程 */
+        .steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .steps h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .step-desc {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* 预约按钮 */
+        .cta-button {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(17, 153, 142, 0.3);
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(17, 153, 142, 0.4);
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 20px 30px 30px;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #11998e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+
+            .service-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部 -->
+        <div class="header">
+            <div class="logo">
+                <img src="/logo/logo.png" alt="邻练体育" onerror="this.parentElement.innerHTML='🏃'">
+            </div>
+            <h1>邻练体育</h1>
+            <p>邻练课后健康 · 社区体育托管</p>
+        </div>
+
+        <div class="content">
+            <!-- 专业体测服务 - 合并为一个卡片 -->
+            <div class="service-card">
+                <h3>🏆 专业体测服务</h3>
+                <div class="service-tags">
+                    <span class="service-tag">📊 体态评估</span>
+                    <span class="service-tag">🦶 足弓分析</span>
+                    <span class="service-tag">💪 身体素质测试</span>
+                    <span class="service-tag">📋 运动方案</span>
+                </div>
+            </div>
+
+            <!-- 社区体育健康服务 -->
+            <div class="service-section">
+                <h3>🏠 社区体育健康服务</h3>
+                <div class="service-list">
+                    <div class="service-item">
+                        <div class="service-icon">🏡</div>
+                        <div class="service-text">
+                            <h4>体育托管</h4>
+                            <p>课后安全托管，专业陪练，孩子开心家长放心</p>
+                        </div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">👥</div>
+                        <div class="service-text">
+                            <h4>体育团课</h4>
+                            <p>小班精品教学，互动有趣，伙伴一起更积极</p>
+                        </div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">🎯</div>
+                        <div class="service-text">
+                            <h4>定制上门私教</h4>
+                            <p>一对一专属服务，个性化训练计划送上门</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 体测说明 -->
+            <div class="info-section">
+                <h3>📝 关于体测</h3>
+                <p>我们为您的孩子提供专业的体测服务，通过科学的数据分析，了解孩子的生长发育状况，制定个性化的运动方案，助力健康成长。</p>
+            </div>
+
+            <!-- 预约流程 -->
+            <div class="steps">
+                <h3>🚀 预约流程</h3>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">点击预约按钮</div>
+                        <div class="step-desc">进入在线预约表单</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">填写基本信息</div>
+                        <div class="step-desc">孩子姓名、年龄、联系方式等</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">提交预约</div>
+                        <div class="step-desc">教练将在24小时内联系您确认</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 预约按钮 -->
+            <a href="/booking-direct.html" class="cta-button">
+                立即预约体测 📅
+            </a>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>© 2026 邻练体育 | 社区青少年体育托管专家</p>
+            <p>客服微信：linlian_sports</p>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.container').style.opacity = '0';
+            document.querySelector('.container').style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                document.querySelector('.container').style.transition = 'all 0.6s ease';
+                document.querySelector('.container').style.opacity = '1';
+                document.querySelector('.container').style.transform = 'translateY(0)';
+            }, 100);
+        });
+
+        // 按钮点击效果
+        document.querySelector('.cta-button').addEventListener('click', function(e) {
+            console.log('家长点击预约按钮');
+        });
+    </script>
+</body>
+</html>

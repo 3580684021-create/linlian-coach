@@ -105,13 +105,25 @@ def get_students():
         students = []
         for record in records:
             fields = record.get('fields', {})
+            # 处理预约日期（飞书时间戳格式，转为 YYYY-MM-DD）
+            appt_ts = fields.get('预约日期')
+            appointment_date = ''
+            if appt_ts:
+                try:
+                    import time
+                    appointment_date = time.strftime('%Y-%m-%d', time.localtime(int(appt_ts) / 1000))
+                except:
+                    appointment_date = str(appt_ts)
+
             students.append({
                 'record_id': record.get('record_id'),
                 'name': fields.get('孩子姓名', fields.get('多行文本', '未知')),
                 'gender': fields.get('性别', '男'),
                 'age': fields.get('年龄', 7),
                 'phone': fields.get('联系电话', ''),
-                'location': fields.get('预约地点', '人民街道党群'),
+                'appointment_date': appointment_date,
+                'appointment_time': fields.get('预约时段', ''),
+                'location': fields.get('预约地点', '人民街道党群服务中心'),
                 'booking_no': fields.get('预约编号', ''),
                 'status': fields.get('状态', '已预约')
             })

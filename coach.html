@@ -447,12 +447,12 @@
                 if (result.success && result.data) {
                     // 转换API数据格式
                     allStudents = result.data.map(item => ({
-                        record_id: item.record_id,
+                        record_id: item.record_id || '',
                         id: item.booking_no || '未编号',
-                        name: item.name,
-                        gender: item.gender,
-                        age: parseInt(item.age) || 0,
-                        phone: item.phone,
+                        name: item.name || '未知',
+                        gender: item.gender || '未知',
+                        age: (item.age !== null && item.age !== undefined && item.age !== '-' && item.age !== 'None' && !isNaN(parseInt(item.age))) ? parseInt(item.age) : '-',
+                        phone: item.phone || '',
                         date: item.appointment_date || '',
                         time: item.appointment_time || '',
                         location: item.location || '未知',
@@ -494,15 +494,15 @@
                 card.onclick = () => startTest(student);
 
                 card.innerHTML = `
-                    <div class="student-avatar">${student.name[0]}</div>
+                    <div class="student-avatar">${(student.name || '?')[0]}</div>
                     <div class="student-info">
                         <div class="student-name">${student.name} <span style="font-size:14px;color:var(--text-light);">(${student.id})</span></div>
                         <div class="student-details">
-                            <div class="student-detail">👦 ${student.gender}</div>
-                            <div class="student-detail">🎂 ${student.age}岁</div>
-                            <div class="student-detail">📅 ${student.date}</div>
-                            <div class="student-detail">⏰ ${student.time}</div>
-                            <div class="student-detail">📍 ${student.location}</div>
+                            <div class="student-detail">👦 ${student.gender || '未知'}</div>
+                            <div class="student-detail">🎂 ${(student.age === null || student.age === undefined || student.age === 'None' || student.age === '-') ? '-' : student.age}岁</div>
+                            <div class="student-detail">📅 ${student.date || '待定'}</div>
+                            <div class="student-detail">⏰ ${student.time || '待确认'}</div>
+                            <div class="student-detail">📍 ${student.location || '未知'}</div>
                         </div>
                     </div>
                     <div class="student-actions">
