@@ -140,6 +140,17 @@ def submit_booking(booking_data):
         print(json.dumps(booking_data, ensure_ascii=False, indent=2))
         return {"success": True, "record_id": "mock_" + str(datetime.now().timestamp())}
     
+    # 日期转时间戳（飞书日期字段需要毫秒级Unix时间戳）
+    def to_timestamp(val):
+        if not val:
+            return None
+        if isinstance(val, (int, float)):
+            return int(val * 1000) if val < 10**12 else int(val)
+        try:
+            return int(datetime.fromisoformat(str(val).replace('Z', '+00:00')).timestamp() * 1000)
+        except:
+            return None
+    
     # 构建飞书记录数据
     fields = {
         '孩子姓名': booking_data.get('child_name'),
@@ -150,11 +161,11 @@ def submit_booking(booking_data):
         '家长姓名': booking_data.get('parent_name'),
         '联系电话': booking_data.get('phone'),
         '微信号': booking_data.get('wechat', ''),
-        '预约日期': booking_data.get('appointment_date'),
+        '预约日期': to_timestamp(booking_data.get('appointment_date')),
         '预约时段': booking_data.get('appointment_time'),
         '预约地点': booking_data.get('location'),
         '备注信息': booking_data.get('remarks', ''),
-        '提交时间': booking_data.get('submit_time', datetime.now().isoformat()),
+        '提交时间': to_timestamp(booking_data.get('submit_time') or datetime.now().isoformat()),
         '状态': '已预约'
     }
     
