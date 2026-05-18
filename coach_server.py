@@ -854,6 +854,14 @@ class Handler(BaseHTTPRequestHandler):
                 traceback.print_exc()
                 self.send_json({"success": False, "message": str(e)})
 
+        elif path == "/api/debug-env":
+            # 调试端点：返回环境变量配置
+            self.send_json({
+                "booking_table_id": FEISHU_CONFIG['booking_table_id'],
+                "table_id": FEISHU_CONFIG['table_id'],
+                "base_token": FEISHU_CONFIG['base_token'],
+                "status": "ok"
+            })
         elif path == "/api/analyze-image":
             # 图片AI分析端点（比视频更快）
             try:
