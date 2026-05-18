@@ -210,7 +210,7 @@
             box-shadow: 0 0 0 3px rgba(17,153,142,0.1);
         }
 
-        /* 视频上传区域 */
+        /* 图片上传区域 */
         .video-upload-area {
             border: 2px dashed var(--brand-light);
             border-radius: 16px;
@@ -251,7 +251,7 @@
             color: var(--text-light);
         }
 
-        /* 视频预览 */
+        /* 图片预览 */
         .video-preview {
             display: none;
             margin-bottom: 16px;
@@ -436,7 +436,7 @@
             <a href="教练端管理界面.html" class="back-btn">← 返回</a>
             <div>
                 <div class="header-title">体测数据录入</div>
-                <div class="header-subtitle">请录入体测数据，视频将由AI自动识别</div>
+                <div class="header-subtitle">请录入体测数据，图片将由AI自动识别</div>
             </div>
         </div>
     </div>
@@ -514,7 +514,7 @@
                 <div class="section-block">
                     <div class="section-header blue">
                         <div class="section-title">🧘 板块二：体态测试</div>
-                        <div class="section-desc">上传视频，由AI自动识别分析</div>
+                        <div class="section-desc">上传图片，由AI自动识别分析</div>
                     </div>
 
                     <!-- 足弓评估 -->
@@ -522,8 +522,8 @@
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🦶 足弓评估</div>
                         <div class="video-upload-area" id="footArchUpload" onclick="document.getElementById('footArchVideo').click()">
                             <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传足弓视频</div>
-                            <div class="upload-desc">或拖拽视频文件到此处<br>需要足底清晰视频</div>
+                            <div class="upload-title">点击上传足弓图片</div>
+                            <div class="upload-desc">或拖拽图片文件到此处<br>需要足底清晰图片</div>
                         </div>
                         <input type="file" id="footArchVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('footArch', this)">
                         
@@ -575,8 +575,8 @@
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">🧘 体态评估</div>
                         <div class="video-upload-area" id="postureUpload" onclick="document.getElementById('postureVideo').click()">
                             <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传体态评估视频</div>
-                            <div class="upload-desc">或拖拽视频文件到此处<br>需要正面和侧面全身视频</div>
+                            <div class="upload-title">点击上传体态评估图片</div>
+                            <div class="upload-desc">或拖拽图片文件到此处<br>需要正面和侧面全身图片</div>
                         </div>
                         <input type="file" id="postureVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('posture', this)">
                         
@@ -636,8 +636,8 @@
                         <div style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">💪 体成分分析</div>
                         <div class="video-upload-area" id="bodyCompUpload" onclick="document.getElementById('bodyCompVideo').click()">
                             <div class="upload-icon">📹</div>
-                            <div class="upload-title">点击上传体成分分析视频</div>
-                            <div class="upload-desc">或拖拽视频文件到此处<br>需要全身站立视频</div>
+                            <div class="upload-title">点击上传体成分分析图片</div>
+                            <div class="upload-desc">或拖拽图片文件到此处<br>需要全身站立图片</div>
                         </div>
                         <input type="file" id="bodyCompVideo" accept="video/*" style="display: none;" onchange="handleVideoUpload('bodyComp', this)">
                         
@@ -813,12 +813,12 @@
             window.currentRecordId = recordId;
         });
 
-        // 处理视频上传
+        // 处理图片上传
         function handleVideoUpload(type, input) {
             const file = input.files[0];
             if (!file) return;
 
-            // 显示视频预览
+            // 显示图片预览
             const preview = document.getElementById(type + 'Preview');
             const video = preview.querySelector('video');
             video.src = URL.createObjectURL(file);
@@ -831,7 +831,7 @@
             document.getElementById(type + 'Result').style.display = 'none';
         }
 
-        // 重新上传视频
+        // 重新上传图片
         function reuploadVideo(type) {
             // 清空文件输入
             document.getElementById(type + 'Video').value = '';
@@ -848,10 +848,10 @@
 
         // 开始AI识别
         function startRecognition(type) {
-            // 获取视频文件
+            // 获取图片文件
             const videoInput = document.getElementById(type + 'Video');
             if (!videoInput || !videoInput.files[0]) {
-                alert('请先上传视频！');
+                alert('请先上传图片！');
                 return;
             }
 
@@ -859,12 +859,12 @@
             document.getElementById(type + 'Processing').style.display = 'block';
             document.getElementById(type + 'Preview').style.display = 'none';
 
-            // 读取视频为base64
+            // 读取图片为base64
             const file = videoInput.files[0];
             const reader = new FileReader();
 
             reader.onload = function(e) {
-                const base64Data = e.target.result.split(',')[1];  // 去掉 data:video/mp4;base64, 前缀
+                const base64Data = e.target.result.split(',')[1];  // 去掉 data:image/jpeg;base64, 前缀
 
                 // 调用后端API
                 fetch(API_BASE_URL + '/api/analyze-video', {
@@ -945,7 +945,7 @@
             const bodyCompResult = document.getElementById('bodyCompResult').style.display;
 
             if (footArchResult === 'none' || postureResult === 'none' || bodyCompResult === 'none') {
-                alert('请先完成所有视频的AI识别！');
+                alert('请先完成所有图片的AI识别！');
                 return;
             }
 
