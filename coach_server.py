@@ -143,7 +143,7 @@ def submit_booking(booking_data):
     # 构建飞书记录数据
     fields = {
         '孩子姓名': booking_data.get('child_name'),
-        '性别': [booking_data.get('gender')],
+        '性别': booking_data.get('gender'),
         '年龄': booking_data.get('age'),
         '身高(cm)': booking_data.get('height'),
         '体重(kg)': booking_data.get('weight'),
