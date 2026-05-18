@@ -12,29 +12,32 @@
         }
 
         :root {
-            --brand-green: #7CB342;
-            --brand-dark: #558B2F;
-            --brand-light: #AED581;
-            --brand-bg: #F1F8E9;
-            --text-dark: #2E3A1F;
-            --text-gray: #5C6B4E;
-            --text-light: #8B9A7D;
+            --brand-green: #11998e;
+            --brand-light: #38ef7d;
+            --brand-bg: #e8f5e9;
+            --text-dark: #2c3e1f;
+            --text-gray: #555;
+            --text-light: #999;
             --white: #ffffff;
+            --orange: #FF9800;
+            --blue: #2196F3;
+            --red: #e74c3c;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-            background: #F5F5F5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             color: var(--text-dark);
             line-height: 1.6;
         }
 
         /* 顶部导航 */
         .header {
-            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-dark) 100%);
-            padding: 20px;
+            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-light) 100%);
+            padding: 24px 20px;
             color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(17,153,142,0.3);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -48,71 +51,147 @@
             justify-content: space-between;
         }
 
-        .header-title {
-            font-size: 20px;
-            font-weight: 700;
+        .header-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .header-subtitle {
-            font-size: 14px;
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .header-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-text p {
+            font-size: 13px;
             opacity: 0.9;
-            margin-top: 4px;
         }
 
         .refresh-btn {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .refresh-btn:hover {
             background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
         }
 
-        /* 筛选区域 */
-        .filter-section {
+        .refresh-btn.spinning svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 主内容区 */
+        .main-content {
             max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .stat-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .stat-number.orange {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            -webkit-background-clip: text;
+        }
+
+        .stat-number.blue {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            -webkit-background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-top: 4px;
+        }
+
+        /* 筛选卡片 */
         .filter-card {
             background: white;
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
 
         .filter-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
-            color: var(--text-dark);
+            color: var(--text-gray);
             margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .filter-options {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         .filter-btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             background: var(--brand-bg);
             border: 2px solid transparent;
             border-radius: 100px;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-gray);
             cursor: pointer;
             transition: all 0.3s;
@@ -121,66 +200,41 @@
 
         .filter-btn:hover {
             border-color: var(--brand-light);
-            color: var(--brand-dark);
-        }
-
-        .filter-btn.active {
-            background: var(--brand-green);
-            color: white;
-            border-color: var(--brand-green);
-        }
-
-        /* 统计信息 */
-        .stats {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #E8F5E9;
-        }
-
-        .stat-item {
-            flex: 1;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: 700;
             color: var(--brand-green);
         }
 
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-top: 4px;
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-light));
+            color: white;
+            border-color: transparent;
         }
 
-        /* 学生列表 */
-        .student-section {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-
-        .section-header {
+        /* 学生列表标题 */
+        .list-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
-        .section-title {
+        .list-title {
             font-size: 18px;
             font-weight: 700;
-            color: var(--text-dark);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .student-count {
-            font-size: 14px;
-            color: var(--text-light);
+        .list-count {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
+        /* 学生卡片 */
         .student-list {
             display: flex;
             flex-direction: column;
@@ -190,157 +244,219 @@
         .student-card {
             background: white;
             border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            gap: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
             transition: all 0.3s;
             cursor: pointer;
+            border: 2px solid transparent;
         }
 
         .student-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(124,179,66,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(17,153,142,0.2);
+            border-color: var(--brand-light);
+        }
+
+        .student-card.tested {
+            border-left: 4px solid var(--brand-green);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
         }
 
         .student-avatar {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
-            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-light));
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(17,153,142,0.25);
         }
 
         .student-info {
             flex: 1;
+            min-width: 0;
         }
 
         .student-name {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-dark);
             margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .student-details {
+        .tested-badge {
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-light));
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-weight: 600;
+        }
+
+        .student-meta {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px 16px;
             font-size: 13px;
             color: var(--text-gray);
         }
 
-        .student-detail {
+        .meta-item {
             display: flex;
             align-items: center;
             gap: 4px;
         }
 
-        .student-actions {
+        .card-actions {
             display: flex;
             gap: 8px;
         }
 
         .action-btn {
-            padding: 10px 20px;
+            padding: 10px 16px;
             border-radius: 10px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             border: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--brand-green);
+            border: 2px solid var(--brand-green);
+        }
+
+        .btn-outline:hover {
+            background: var(--brand-bg);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-light));
             color: white;
-            box-shadow: 0 4px 12px rgba(124,179,66,0.3);
+            box-shadow: 0 4px 12px rgba(17,153,142,0.25);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(124,179,66,0.4);
-        }
-
-        .btn-secondary {
-            background: var(--brand-bg);
-            color: var(--brand-dark);
-        }
-
-        .btn-secondary:hover {
-            background: var(--brand-light);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(17,153,142,0.35);
         }
 
         /* 空状态 */
         .empty-state {
-            text-align: center;
+            background: white;
+            border-radius: 16px;
             padding: 60px 20px;
-            color: var(--text-light);
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
 
         .empty-icon {
             font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            margin-bottom: 16px;
         }
 
         .empty-title {
             font-size: 18px;
-            font-weight: 600;
-            color: var(--text-gray);
+            font-weight: 700;
+            color: var(--text-dark);
             margin-bottom: 8px;
         }
 
         .empty-desc {
             font-size: 14px;
+            color: var(--text-gray);
         }
 
-        /* 加载动画 */
+        /* 加载状态 */
         .loading {
+            background: white;
+            border-radius: 16px;
+            padding: 60px 20px;
             text-align: center;
-            padding: 40px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--brand-green);
+            width: 44px;
+            height: 44px;
+            border: 4px solid #e8f5e9;
+            border-top: 4px solid var(--brand-green);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
             margin: 0 auto 16px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .loading-text {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        /* 页面加载动画 */
+        .page-enter {
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* 响应式 */
         @media (max-width: 600px) {
-            .header-title {
-                font-size: 18px;
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 16px 10px;
+            }
+
+            .stat-number {
+                font-size: 24px;
+            }
+
+            .stat-label {
+                font-size: 11px;
             }
 
             .student-card {
-                flex-direction: column;
-                align-items: flex-start;
+                padding: 16px;
             }
 
-            .student-actions {
+            .card-actions {
                 width: 100%;
+                margin-top: 12px;
             }
 
             .action-btn {
                 flex: 1;
-                text-align: center;
+                justify-content: center;
             }
         }
     </style>
@@ -349,103 +465,112 @@
     <!-- 顶部导航 -->
     <div class="header">
         <div class="header-content">
-            <div>
-                <div class="header-title">
-                    💪 邻练体育 - 教练端
+            <div class="header-left">
+                <div class="header-logo">🏃</div>
+                <div class="header-text">
+                    <h1>邻练体育</h1>
+                    <p>教练端管理系统</p>
                 </div>
-                <div class="header-subtitle">体测管理系统</div>
             </div>
-            <button class="refresh-btn" onclick="loadStudents()">
-                🔄 刷新
+            <button class="refresh-btn" id="refreshBtn" onclick="loadStudents()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M23 4v6h-6M1 20v-6h6"/>
+                    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                </svg>
+                刷新
             </button>
         </div>
     </div>
 
-    <!-- 筛选区域 -->
-    <div class="filter-section">
-        <div class="filter-card">
-            <div class="filter-title">
-                📍 选择党群服务中心
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">总预约</div>
             </div>
-            <div class="filter-options" id="locationFilter">
-                <button class="filter-btn active" onclick="filterByLocation('全部', this)">
-                    全部
-                </button>
-                <button class="filter-btn" onclick="filterByLocation('人民街道党群服务中心', this)">
-                    人民街道党群服务中心
-                </button>
-                <button class="filter-btn" onclick="filterByLocation('其他地点', this)">
-                    其他地点
-                </button>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-number orange" id="todayCount">0</div>
+                <div class="stat-label">今日预约</div>
             </div>
-
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-number" id="totalCount">0</div>
-                    <div class="stat-label">总预约</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="todayCount">0</div>
-                    <div class="stat-label">今日预约</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="testedCount">0</div>
-                    <div class="stat-label">已完成测试</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number blue" id="testedCount">0</div>
+                <div class="stat-label">已完成</div>
             </div>
         </div>
-    </div>
 
-    <!-- 学生列表 -->
-    <div class="student-section">
-        <div class="section-header">
-            <div class="section-title">预约学生列表</div>
-            <div class="student-count" id="studentCount">共 0 人</div>
+        <!-- 筛选 -->
+        <div class="filter-card">
+            <div class="filter-title">📍 筛选地点</div>
+            <div class="filter-options" id="locationFilter">
+                <button class="filter-btn active" onclick="filterByLocation('全部', this)">全部</button>
+                <button class="filter-btn" onclick="filterByLocation('人民街道党群服务中心', this)">人民街道党群</button>
+                <button class="filter-btn" onclick="filterByLocation('其他地点', this)">其他地点</button>
+            </div>
+        </div>
+
+        <!-- 学生列表 -->
+        <div class="list-header">
+            <div class="list-title">
+                👨‍🎓 预约学生
+                <span class="list-count" id="studentCount">0 人</span>
+            </div>
         </div>
 
         <div class="student-list" id="studentList">
-            <!-- 学生卡片将通过 JavaScript 动态生成 -->
-        </div>
+            <!-- 加载中 -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">正在加载学生数据...</div>
+            </div>
 
-        <!-- 加载状态 -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div>正在加载学生数据...</div>
-        </div>
-
-        <!-- 空状态 -->
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <div class="empty-icon">📭</div>
-            <div class="empty-title">暂无预约学生</div>
-            <div class="empty-desc">暂无符合条件的预约记录</div>
+            <!-- 空状态 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <div class="empty-title">暂无预约学生</div>
+                <div class="empty-desc">暂无符合条件的预约记录</div>
+            </div>
         </div>
     </div>
 
     <script>
-        // 后端API地址 - Nginx反向代理模式
+        // API地址
         const API_BASE = '';
-        
-        // 学生数据（从API加载）
+
+        // 数据
         let allStudents = [];
         let currentFilter = '全部';
 
-        // 页面加载时初始化
+        // 页面加载
         window.addEventListener('load', function() {
             loadStudents();
         });
 
-        // 加载学生数据（从后端API）
+        // 加载学生数据
         async function loadStudents() {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('studentList').innerHTML = '';
-            document.getElementById('emptyState').style.display = 'none';
+            const loading = document.getElementById('loading');
+            const list = document.getElementById('studentList');
+            const empty = document.getElementById('emptyState');
+            const refreshBtn = document.getElementById('refreshBtn');
+
+            // 显示加载
+            loading.style.display = 'block';
+            empty.style.display = 'none';
+            list.querySelectorAll('.student-card').forEach(c => c.remove());
+
+            // 旋转动画
+            refreshBtn.classList.add('spinning');
+            setTimeout(() => refreshBtn.classList.remove('spinning'), 1000);
 
             try {
                 const response = await fetch(`${API_BASE}/api/students`);
                 const result = await response.json();
-                
+
                 if (result.success && result.data) {
-                    // 转换API数据格式
                     allStudents = result.data.map(item => ({
                         record_id: item.record_id || '',
                         id: item.booking_no || '未编号',
@@ -460,21 +585,22 @@
                     }));
                 }
             } catch (error) {
-                console.error('加载数据失败:', error);
+                console.error('加载失败:', error);
                 allStudents = [];
             }
 
+            loading.style.display = 'none';
             renderStudents();
             updateStats();
-            document.getElementById('loading').style.display = 'none';
         }
 
-        // 渲染学生列表
+        // 渲染列表
         function renderStudents() {
             const container = document.getElementById('studentList');
-            container.innerHTML = '';
+            // 移除旧卡片
+            container.querySelectorAll('.student-card').forEach(c => c.remove());
+            document.getElementById('emptyState').style.display = 'none';
 
-            // 筛选数据
             let filtered = allStudents;
             if (currentFilter !== '全部') {
                 filtered = allStudents.filter(s => s.location === currentFilter);
@@ -482,35 +608,39 @@
 
             if (filtered.length === 0) {
                 document.getElementById('emptyState').style.display = 'block';
-                document.getElementById('studentCount').textContent = '共 0 人';
+                document.getElementById('studentCount').textContent = '0 人';
                 return;
             }
 
-            document.getElementById('studentCount').textContent = `共 ${filtered.length} 人`;
+            document.getElementById('studentCount').textContent = `${filtered.length} 人`;
 
             filtered.forEach(student => {
                 const card = document.createElement('div');
-                card.className = 'student-card';
+                card.className = 'student-card page-enter' + (student.tested ? ' tested' : '');
                 card.onclick = () => startTest(student);
 
                 card.innerHTML = `
-                    <div class="student-avatar">${(student.name || '?')[0]}</div>
-                    <div class="student-info">
-                        <div class="student-name">${student.name} <span style="font-size:14px;color:var(--text-light);">(${student.id})</span></div>
-                        <div class="student-details">
-                            <div class="student-detail">👦 ${student.gender || '未知'}</div>
-                            <div class="student-detail">🎂 ${(student.age === null || student.age === undefined || student.age === 'None' || student.age === '-') ? '-' : student.age}岁</div>
-                            <div class="student-detail">📅 ${student.date || '待定'}</div>
-                            <div class="student-detail">⏰ ${student.time || '待确认'}</div>
-                            <div class="student-detail">📍 ${student.location || '未知'}</div>
+                    <div class="card-header">
+                        <div class="student-avatar">${(student.name || '?')[0]}</div>
+                        <div class="student-info">
+                            <div class="student-name">
+                                ${student.name}
+                                ${student.tested ? '<span class="tested-badge">已测</span>' : ''}
+                            </div>
+                            <div class="student-meta">
+                                <span class="meta-item">👦 ${student.gender || '未知'}</span>
+                                <span class="meta-item">🎂 ${student.age === '-' || student.age === null || student.age === 'None' ? '-' : student.age}岁</span>
+                                <span class="meta-item">📅 ${student.date || '待定'}</span>
+                                <span class="meta-item">📍 ${student.location || '未知'}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="student-actions">
-                        <button class="action-btn btn-secondary" onclick="event.stopPropagation(); viewReport('${student.record_id}', '${encodeURIComponent(student.name)}', '${student.gender}', ${student.age})">
-                            查看报告
+                    <div class="card-actions">
+                        <button class="action-btn btn-outline" onclick="event.stopPropagation(); viewReport('${student.record_id}', '${encodeURIComponent(student.name)}', '${student.gender}', ${student.age === '-' || student.age === null ? 0 : student.age})">
+                            📄 查看报告
                         </button>
                         <button class="action-btn btn-primary" onclick="event.stopPropagation(); startTest('${student.record_id}')">
-                            开始测试 →
+                            ${student.tested ? '📝 重新测试' : '🎬 开始测试'}
                         </button>
                     </div>
                 `;
@@ -519,14 +649,11 @@
             });
         }
 
-        // 按地点筛选
+        // 筛选
         function filterByLocation(location, btn) {
             currentFilter = location;
-
-            // 更新按钮状态
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
             renderStudents();
         }
 
@@ -538,15 +665,17 @@
 
         // 开始测试
         function startTest(student) {
-            // 跳转到测试界面
-            const testUrl = `test.html?record_id=${student.record_id}&name=${encodeURIComponent(student.name)}&gender=${encodeURIComponent(student.gender)}&age=${student.age}`;
+            const recordId = typeof student === 'object' ? student.record_id : student;
+            const name = typeof student === 'object' ? encodeURIComponent(student.name) : '';
+            const gender = typeof student === 'object' ? encodeURIComponent(student.gender) : '';
+            const age = typeof student === 'object' ? student.age : 0;
+            const testUrl = `test.html?record_id=${recordId}&name=${name}&gender=${gender}&age=${age}`;
             window.location.href = testUrl;
         }
 
-        // 更新统计信息
+        // 更新统计
         function updateStats() {
             const today = new Date().toISOString().split('T')[0];
-
             document.getElementById('totalCount').textContent = allStudents.length;
             document.getElementById('todayCount').textContent = allStudents.filter(s => s.date === today).length;
             document.getElementById('testedCount').textContent = allStudents.filter(s => s.tested).length;

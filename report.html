@@ -6,42 +6,35 @@
     <title>邻练体育 - AI体测报告</title>
     <script src="config.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --brand-green: #7CB342;
-            --brand-dark: #558B2F;
-            --brand-light: #AED581;
-            --brand-bg: #F1F8E9;
-            --text-dark: #2E3A1F;
-            --text-gray: #5C6B4E;
-            --text-light: #8B9A7D;
+            --brand-green: #11998e;
+            --brand-light: #38ef7d;
+            --brand-bg: #e8f5e9;
+            --text-dark: #2c3e1f;
+            --text-gray: #555;
+            --text-light: #999;
             --white: #ffffff;
             --orange: #FF9800;
             --blue: #2196F3;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-            background: #F5F5F5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             color: var(--text-dark);
             line-height: 1.6;
         }
-
-        /* 顶部导航 */
         .header {
-            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-dark) 100%);
+            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-light) 100%);
             padding: 20px;
             color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(17,153,142,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-
         .header-content {
             max-width: 800px;
             margin: 0 auto;
@@ -49,382 +42,383 @@
             align-items: center;
             gap: 16px;
         }
-
         .back-btn {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 8px 18px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
             transition: all 0.3s;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-
-        .back-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        /* 报告容器 */
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .header-title { font-size: 20px; font-weight: 700; }
         .report-container {
             max-width: 800px;
             margin: 20px auto;
-            padding: 0 20px;
+            padding: 0 20px 40px;
         }
-
+        .loading {
+            background: white;
+            border-radius: 16px;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .spinner {
+            width: 44px; height: 44px;
+            border: 4px solid #e8f5e9;
+            border-top: 4px solid var(--brand-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { color: var(--text-gray); font-size: 14px; }
         .report-card {
             background: white;
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+            animation: fadeIn 0.5s ease;
         }
-
-        /* 封面 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .cover {
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px 24px;
             background: linear-gradient(135deg, var(--brand-bg) 0%, white 100%);
+            border-radius: 20px;
+            margin-bottom: 16px;
         }
-
-        .cover-logo {
-            width: 80px;
-            margin-bottom: 20px;
-        }
-
+        .cover-logo { width: 80px; margin-bottom: 16px; }
         .cover-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--brand-green);
-            margin-bottom: 10px;
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
-
-        .cover-slogan {
-            font-size: 16px;
-            color: var(--text-gray);
-            margin-bottom: 30px;
-        }
-
+        .cover-slogan { font-size: 14px; color: var(--text-gray); margin-bottom: 24px; }
         .cover-info {
             display: inline-block;
             text-align: left;
             background: white;
-            padding: 20px 40px;
+            padding: 20px 32px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         }
-
-        .cover-info p {
-            margin: 8px 0;
-            font-size: 16px;
-        }
-
-        /* 各板块 */
-        .section {
-            margin-top: 30px;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-dark);
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--brand-green);
-            margin-bottom: 20px;
+        .cover-info p { margin: 8px 0; font-size: 15px; }
+        .cover-info strong { color: var(--text-dark); }
+        .cover-grade { color: var(--brand-green) !important; font-weight: 700; }
+        .section-header {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--brand-green);
         }
-
-        .section-title.orange {
-            border-bottom-color: var(--orange);
-        }
-
-        .section-title.blue {
-            border-bottom-color: var(--blue);
-        }
-
+        .section-header.orange { border-bottom-color: var(--orange); }
+        .section-header.blue { border-bottom-color: var(--blue); }
+        .section-header.purple { border-bottom-color: #9C27B0; }
+        .section-title { font-size: 18px; font-weight: 700; color: var(--text-dark); }
         .data-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
         }
-
         .data-item {
             background: var(--brand-bg);
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .data-label {
-            font-size: 14px;
-            color: var(--text-light);
-            margin-bottom: 5px;
-        }
-
-        .data-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--brand-dark);
-        }
-
-        .data-unit {
-            font-size: 14px;
-            color: var(--text-gray);
-            margin-left: 4px;
-        }
-
-        /* 评级 */
-        .grade {
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
-            color: white;
+            padding: 16px;
             border-radius: 12px;
-            margin-top: 20px;
+            transition: all 0.3s;
         }
-
-        .grade-title {
-            font-size: 18px;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-
-        .grade-value {
-            font-size: 48px;
-            font-weight: 700;
-        }
-
-        /* 打印按钮 */
-        .print-section {
+        .data-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(17,153,142,0.15); }
+        .data-label { font-size: 13px; color: var(--text-gray); margin-bottom: 6px; }
+        .data-value { font-size: 22px; font-weight: 800; color: var(--brand-green); }
+        .data-unit { font-size: 13px; color: var(--text-gray); margin-left: 4px; font-weight: 400; }
+        .data-text { font-size: 16px; }
+        .data-risk { color: var(--orange); }
+        .grade-card {
             text-align: center;
-            margin: 30px 0;
-        }
-
-        .print-btn {
-            background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+            padding: 32px;
+            background: linear-gradient(135deg, var(--brand-green), var(--brand-light));
             color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(124,179,66,0.3);
-            margin: 0 10px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(17,153,142,0.3);
         }
-
-        .print-btn:hover {
-            transform: translateY(-2px);
+        .grade-label { font-size: 16px; opacity: 0.9; margin-bottom: 8px; }
+        .grade-value { font-size: 52px; font-weight: 800; line-height: 1.2; }
+        .grade-sub { font-size: 14px; opacity: 0.85; margin-top: 8px; }
+        /* 三按钮输出区 */
+        .action-section {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            margin-top: 8px;
         }
-
-        /* 加载 */
-        .loading {
+        .action-title {
             text-align: center;
-            padding: 60px;
-            color: var(--text-light);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
         }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #E8F5E9;
-            border-top: 4px solid var(--brand-green);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            text-decoration: none;
+            text-align: center;
         }
-
-        /* 响应式 */
-        @media (max-width: 600px) {
-            .data-grid {
-                grid-template-columns: 1fr;
-            }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
-
+        .action-icon { font-size: 32px; margin-bottom: 10px; }
+        .action-label { font-size: 15px; font-weight: 700; }
+        .action-desc { font-size: 12px; opacity: 0.8; margin-top: 4px; font-weight: 400; }
+        .btn-view { background: linear-gradient(135deg, #E3F2FD, #BBDEFB); color: #1565C0; border-color: #2196F3; }
+        .btn-print { background: linear-gradient(135deg, #FFF3E0, #FFE0B2); color: #E65100; border-color: #FF9800; }
+        .btn-pdf { background: linear-gradient(135deg, var(--brand-bg), #C8E6C9); color: var(--brand-green); border-color: var(--brand-green); }
+        /* 建议 */
+        .advice-card {
+            background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+            border-left: 4px solid var(--orange);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+        .advice-title { font-size: 14px; font-weight: 700; color: #E65100; margin-bottom: 6px; }
+        .advice-text { font-size: 14px; color: #555; line-height: 1.7; }
+        /* 打印 */
         @media print {
-            .header, .print-section {
-                display: none;
-            }
+            .header, .action-section { display: none !important; }
+            body { background: white; }
+            .report-card, .grade-card { box-shadow: none; margin-bottom: 12px; }
+        }
+        @media (max-width: 600px) {
+            .data-grid { grid-template-columns: 1fr 1fr; }
+            .action-grid { grid-template-columns: 1fr; }
+            .action-btn { padding: 20px; flex-direction: row; gap: 12px; text-align: left; }
+            .action-icon { font-size: 28px; margin-bottom: 0; }
         }
     </style>
 </head>
 <body>
-    <!-- 顶部导航 -->
     <div class="header">
         <div class="header-content">
-            <a href="coach.html" class="back-btn">← 返回</a>
-            <div>
-                <div class="header-title">AI体测分析报告</div>
-            </div>
+            <a href="coach.html" class="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                返回
+            </a>
+            <div class="header-title">AI体测分析报告</div>
         </div>
     </div>
 
-    <!-- 加载动画 -->
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <div>正在加载报告数据...</div>
-    </div>
-
-    <!-- 报告内容 -->
     <div class="report-container" id="reportContent" style="display: none;">
         <!-- 封面 -->
-        <div class="report-card cover">
+        <div class="cover">
+            <img src="logo.png" alt="邻练体育" class="cover-logo" onerror="this.style.display='none'">
             <div class="cover-title">AI体测分析报告</div>
             <div class="cover-slogan">邻练课后健康 · 社区体育托管</div>
             <div class="cover-info">
                 <p><strong>学员姓名：</strong><span id="rptName">-</span></p>
                 <p><strong>测试日期：</strong><span id="rptDate">-</span></p>
-                <p><strong>综合评级：</strong><span id="rptGrade" style="color: var(--brand-green); font-weight: 700;">-</span></p>
+                <p><strong>综合评级：</strong><span id="rptGrade" class="cover-grade">-</span></p>
             </div>
         </div>
 
         <!-- 体能测试 -->
         <div class="report-card">
-            <div class="section">
-                <div class="section-title">🏃 体能测试结果</div>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div class="data-label">身高</div>
-                        <div class="data-value"><span id="rptHeight">-</span><span class="data-unit">cm</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">体重</div>
-                        <div class="data-value"><span id="rptWeight">-</span><span class="data-unit">kg</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">肺活量</div>
-                        <div class="data-value"><span id="rptVital">-</span><span class="data-unit">ml</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">立定跳远</div>
-                        <div class="data-value"><span id="rptJump">-</span><span class="data-unit">cm</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">坐位体前屈</div>
-                        <div class="data-value"><span id="rptSit">-</span><span class="data-unit">cm</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">跪姿俯卧撑</div>
-                        <div class="data-value"><span id="rptPushup">-</span><span class="data-unit">个</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">平板支撑</div>
-                        <div class="data-value"><span id="rptPlank">-</span><span class="data-unit">秒</span></div>
-                    </div>
+            <div class="section-header">
+                <span style="font-size:22px;">🏃</span>
+                <span class="section-title">体能测试结果</span>
+            </div>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">身高</div>
+                    <div class="data-value"><span id="rptHeight">-</span><span class="data-unit">cm</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">体重</div>
+                    <div class="data-value"><span id="rptWeight">-</span><span class="data-unit">kg</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">肺活量</div>
+                    <div class="data-value"><span id="rptVital">-</span><span class="data-unit">ml</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">立定跳远</div>
+                    <div class="data-value"><span id="rptJump">-</span><span class="data-unit">cm</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">坐位体前屈</div>
+                    <div class="data-value"><span id="rptSit">-</span><span class="data-unit">cm</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">跪姿俯卧撑</div>
+                    <div class="data-value"><span id="rptPushup">-</span><span class="data-unit">个</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">平板支撑</div>
+                    <div class="data-value"><span id="rptPlank">-</span><span class="data-unit">秒</span></div>
                 </div>
             </div>
         </div>
 
         <!-- 足弓评估 -->
         <div class="report-card">
-            <div class="section">
-                <div class="section-title orange">🦶 足弓评估</div>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div class="data-label">足弓类型</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptFootType">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">左足弓</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptLeftFoot">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">右足弓</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptRightFoot">-</span></div>
-                    </div>
+            <div class="section-header orange">
+                <span style="font-size:22px;">🦶</span>
+                <span class="section-title">足弓评估</span>
+            </div>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">足弓类型</div>
+                    <div class="data-value data-text"><span id="rptFootType">-</span></div>
                 </div>
-                <p style="margin-top: 15px; color: var(--text-gray);" id="rptFootAdvice">-</p>
+                <div class="data-item">
+                    <div class="data-label">左足弓</div>
+                    <div class="data-value data-text"><span id="rptLeftFoot">-</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">右足弓</div>
+                    <div class="data-value data-text"><span id="rptRightFoot">-</span></div>
+                </div>
+            </div>
+            <div class="advice-card">
+                <div class="advice-title">💡 足部建议</div>
+                <div class="advice-text" id="rptFootAdvice">-</div>
             </div>
         </div>
 
         <!-- 体态评估 -->
         <div class="report-card">
-            <div class="section">
-                <div class="section-title blue">🧘 体态评估</div>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div class="data-label">头颈对称</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptHead">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">肩部对称</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptShoulder">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">圆肩驼背</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptRound">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">重心偏移</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptCenter">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">骨盆对齐</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptPelvis">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">风险等级</div>
-                        <div class="data-value" style="font-size: 18px; color: var(--orange);"><span id="rptRisk">-</span></div>
-                    </div>
+            <div class="section-header blue">
+                <span style="font-size:22px;">🧘</span>
+                <span class="section-title">体态评估</span>
+            </div>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">头颈对称</div>
+                    <div class="data-value data-text"><span id="rptHead">-</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">肩部对称</div>
+                    <div class="data-value data-text"><span id="rptShoulder">-</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">圆肩驼背</div>
+                    <div class="data-value data-text"><span id="rptRound">-</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">重心偏移</div>
+                    <div class="data-value data-text"><span id="rptCenter">-</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">骨盆对齐</div>
+                    <div class="data-value data-text"><span id="rptPelvis">-</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">风险等级</div>
+                    <div class="data-value data-risk"><span id="rptRisk">-</span></div>
                 </div>
             </div>
         </div>
 
         <!-- 体成分 -->
         <div class="report-card">
-            <div class="section">
-                <div class="section-title" style="border-bottom-color: #9C27B0;">💪 体成分分析</div>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div class="data-label">BMI</div>
-                        <div class="data-value"><span id="rptBMI">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">体脂率</div>
-                        <div class="data-value"><span id="rptFat">-</span><span class="data-unit">%</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">肌肉量</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptMuscle">-</span></div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">综合评估</div>
-                        <div class="data-value" style="font-size: 18px;"><span id="rptAssess">-</span></div>
-                    </div>
+            <div class="section-header purple">
+                <span style="font-size:22px;">💪</span>
+                <span class="section-title">体成分分析</span>
+            </div>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">BMI</div>
+                    <div class="data-value"><span id="rptBMI">-</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">体脂率</div>
+                    <div class="data-value"><span id="rptFat">-</span><span class="data-unit">%</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">肌肉量</div>
+                    <div class="data-value data-text"><span id="rptMuscle">-</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">综合评估</div>
+                    <div class="data-value data-text"><span id="rptAssess">-</span></div>
                 </div>
             </div>
         </div>
 
         <!-- 综合评级 -->
-        <div class="grade" id="rptGradeCard">
-            <div class="grade-title">综合评级</div>
-            <div class="grade-value" id="rptGradeValue">优秀</div>
-            <div class="grade-title" style="margin-top: 10px;">继续保持，科学训练</div>
+        <div class="grade-card">
+            <div class="grade-label">综合评级</div>
+            <div class="grade-value" id="rptGradeValue">-</div>
+            <div class="grade-sub">继续保持，科学训练</div>
         </div>
 
-        <!-- 打印按钮 -->
-        <div class="print-section">
-            <button class="print-btn" onclick="downloadPDF()">📥 下载PDF</button>
-            <button class="print-btn" onclick="window.print()">🖨️ 打印</button>
-            <button class="print-btn" style="background: var(--orange);" onclick="shareReport()">📤 分享</button>
+        <!-- ===== 三按钮输出 ===== -->
+        <div class="action-section">
+            <div class="action-title">📋 报告输出</div>
+            <div class="action-grid">
+                <div class="action-btn btn-view" onclick="scrollToTop()">
+                    <span class="action-icon">📄</span>
+                    <span class="action-label">查看报告</span>
+                    <span class="action-desc">浏览完整内容</span>
+                </div>
+                <div class="action-btn btn-print" onclick="printReport()">
+                    <span class="action-icon">🖨️</span>
+                    <span class="action-label">打印报告</span>
+                    <span class="action-desc">连接打印机打印</span>
+                </div>
+                <div class="action-btn btn-pdf" onclick="downloadPDF()">
+                    <span class="action-icon">📥</span>
+                    <span class="action-label">保存PDF</span>
+                    <span class="action-desc">下载到本地保存</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div class="report-container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">正在加载报告数据...</div>
         </div>
     </div>
 
     <script>
-        // 页面加载时获取报告数据
+        // 页面加载
         window.addEventListener('load', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const recordId = urlParams.get('record_id') || '';
@@ -432,39 +426,32 @@
             const gender = urlParams.get('gender') || '男';
             const age = urlParams.get('age') || '7';
 
-            // 显示基本信息
             document.getElementById('rptName').textContent = studentName;
             document.getElementById('rptDate').textContent = new Date().toLocaleDateString('zh-CN');
-
-            // 加载报告数据
             loadReportData(recordId, studentName);
         });
 
-        // 加载报告数据
+        // 加载数据
         function loadReportData(recordId, studentName) {
-            // 先尝试从后端API获取数据
             fetch(API_BASE_URL + '/api/get-test-data?record_id=' + recordId)
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => {
                     if (data.success && data.data) {
                         fillReport(data.data);
                     } else {
-                        // 如果API失败，使用模拟数据
                         fillMockReport(studentName);
                     }
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('reportContent').style.display = 'block';
                 })
-                .catch(error => {
-                    console.error('加载报告失败：', error);
-                    // 使用模拟数据
+                .catch(() => {
                     fillMockReport(studentName);
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('reportContent').style.display = 'block';
                 });
         }
 
-        // 填充模拟报告（当API不可用时）
+        // 模拟数据
         function fillMockReport(name) {
             document.getElementById('rptHeight').textContent = '132';
             document.getElementById('rptWeight').textContent = '28';
@@ -473,29 +460,25 @@
             document.getElementById('rptSit').textContent = '15';
             document.getElementById('rptPushup').textContent = '15';
             document.getElementById('rptPlank').textContent = '60';
-            
             document.getElementById('rptFootType').textContent = '正常足弓';
             document.getElementById('rptLeftFoot').textContent = '正常';
             document.getElementById('rptRightFoot').textContent = '正常';
-            document.getElementById('rptFootAdvice').textContent = '足弓正常，继续保持良好的运动习惯';
-            
+            document.getElementById('rptFootAdvice').textContent = '足弓发育正常，建议继续保持多样化的运动习惯，注意跑跳动作的规范性。';
             document.getElementById('rptHead').textContent = '正常';
             document.getElementById('rptShoulder').textContent = '正常';
             document.getElementById('rptRound').textContent = '无';
             document.getElementById('rptCenter').textContent = '无';
             document.getElementById('rptPelvis').textContent = '正常';
             document.getElementById('rptRisk').textContent = '低风险';
-            
-            document.getElementById('rptBMI').textContent = '22.5';
+            document.getElementById('rptBMI').textContent = '16.1';
             document.getElementById('rptFat').textContent = '18';
             document.getElementById('rptMuscle').textContent = '正常';
-            document.getElementById('rptAssess').textContent = '体成分正常';
-            
+            document.getElementById('rptAssess').textContent = '发育良好';
             document.getElementById('rptGrade').textContent = '优秀';
             document.getElementById('rptGradeValue').textContent = '优秀';
         }
 
-        // 填充真实报告数据
+        // 填充真实数据
         function fillReport(data) {
             if (data.height) document.getElementById('rptHeight').textContent = data.height;
             if (data.weight) document.getElementById('rptWeight').textContent = data.weight;
@@ -504,8 +487,6 @@
             if (data.sit_and_reach) document.getElementById('rptSit').textContent = data.sit_and_reach;
             if (data.push_up) document.getElementById('rptPushup').textContent = data.push_up;
             if (data.plank) document.getElementById('rptPlank').textContent = data.plank;
-            
-            // 评级
             const risk = data.risk_level || '低';
             let grade = '优秀';
             if (risk.includes('中')) grade = '良好';
@@ -514,44 +495,35 @@
             document.getElementById('rptGradeValue').textContent = grade;
         }
 
+        // 滚动到顶部
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-        // 下载PDF（和屏幕画面一模一样）
+        // 打印报告
+        function printReport() {
+            window.print();
+        }
+
+        // 下载PDF
         function downloadPDF() {
             const element = document.getElementById('reportContent');
             const name = document.getElementById('rptName').textContent || '体测报告';
-            
-            // 隐藏顶部导航和打印按钮（PDF中不需要）
+            const date = document.getElementById('rptDate').textContent;
+
             document.querySelector('.header').style.display = 'none';
-            document.querySelector('.print-section').style.display = 'none';
-            
+
             const opt = {
                 margin: 0,
-                filename: `邻练体育-体测报告-${name}.pdf`,
+                filename: `邻练体育-体测报告-${name}-${date}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, logging: false },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            
+
             html2pdf().set(opt).from(element).save().then(() => {
-                // 恢复显示
                 document.querySelector('.header').style.display = 'block';
-                document.querySelector('.print-section').style.display = 'block';
             });
-        }
-        
-        // 分享报告
-        function shareReport() {
-            if (navigator.share) {
-                navigator.share({
-                    title: '邻练体育 - AI体测报告',
-                    text: '查看体测报告',
-                    url: window.location.href
-                });
-            } else {
-                // 复制链接
-                navigator.clipboard.writeText(window.location.href);
-                alert('报告链接已复制！');
-            }
         }
     </script>
 </body>
